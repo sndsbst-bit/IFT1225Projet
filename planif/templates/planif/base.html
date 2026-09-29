@@ -1,0 +1,32 @@
+{% load static %}<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Planification des études</title>
+  <link rel="stylesheet" href="{% static 'planif/style.css' %}">
+</head>
+<body>
+<header>
+  <strong>Planification des études</strong>
+  {% if user.profil %}
+  <nav>
+    {% if user.profil.role == "etudiante" %}
+      <a href="{% url 'plan' %}">Plan</a>
+      <a href="{% url 'catalogue' %}">Catalogue</a>
+      <a href="{% url 'multisession' %}">Multi-sessions</a>
+      <a href="{% url 'profil' %}">Profil</a>
+    {% else %}
+      <a href="{% url 'demandes' %}">Demandes</a>
+    {% endif %}
+    <form method="post" action="{% url 'deconnexion' %}" class="en-ligne">{% csrf_token %}<button>Déconnexion</button></form>
+  </nav>
+  {% endif %}
+</header>
+<div class="bandeau">Prototype : données fictives. {% if user.profil %}Profil : {{ user.profil.nom }}{% endif %}</div>
+<main>
+  {% for m in messages %}<p class="msg {{ m.tags }}">{{ m }}</p>{% endfor %}
+  {% block contenu %}{% endblock %}
+</main>
+</body>
+</html>

@@ -1,0 +1,20 @@
+{% extends "planif/base.html" %}
+{% block contenu %}
+<h1>Demandes reçues{% if hote %} : {{ hote }}{% endif %}</h1>
+{% if hote %}<p>Capacité : {{ hote.capacite }}. Disponibilité estimée : {{ hote.disponibilite_estimee }} %.</p>{% endif %}
+<table>
+  <tr><th>Personne</th><th>Activité</th><th>État</th><th>Expire le</th><th></th></tr>
+  {% for d in demandes %}
+  <tr>
+    <td>{{ d.profil.nom }}</td><td>{{ d.activite.titre }}</td><td>{{ d.get_etat_display }}</td>
+    <td>{{ d.expire_le|date:"j F" }}</td>
+    <td>{% if d.etat == "envoyee" %}
+      <form method="post" action="{% url 'repondre' d.pk %}" class="en-ligne">{% csrf_token %}
+        <button name="reponse" value="accepter">Accepter</button>
+        <button name="reponse" value="refuser">Refuser</button>
+      </form>{% endif %}</td>
+  </tr>
+  {% empty %}<tr><td colspan="5">Aucune demande.</td></tr>
+  {% endfor %}
+</table>
+{% endblock %}

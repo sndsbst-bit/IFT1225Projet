@@ -1,0 +1,24 @@
+{% extends "planif/base.html" %}
+{% block contenu %}
+<h1>Catalogue de {{ session }}</h1>
+<form method="get">
+  <select name="type" onchange="this.form.submit()">
+    <option value="">Tous les types</option>
+    {% for v, l in types %}<option value="{{ v }}" {% if v == type %}selected{% endif %}>{{ l }}</option>{% endfor %}
+  </select>
+  <noscript><button>Filtrer</button></noscript>
+</form>
+<table>
+  <tr><th>Activité</th><th>Type</th><th>Crédits</th><th>Places</th><th>Source (mise à jour)</th><th></th></tr>
+  {% for a, raisons in activites %}
+  <tr>
+    <td>{{ a.titre }}{% if a.horaire %} <small>{{ a.horaire }}</small>{% endif %}
+      {% if raisons %}<br><small class="respectee">Suggérée : {{ raisons|join:", " }}</small>{% endif %}</td>
+    <td>{{ a.get_type_display }}</td><td>{{ a.credits }}</td><td>{{ a.places }}</td>
+    <td>{{ a.source }} ({{ a.maj|default:"inconnue" }})
+      {% if a.hote %}<br><small>{{ a.hote }} : disponibilité estimée {{ a.hote.disponibilite_estimee }} %</small>{% endif %}</td>
+    <td><form method="post" action="{% url 'ajouter' a.pk %}">{% csrf_token %}<button>{% if a.hote %}Demander{% else %}Ajouter{% endif %}</button></form></td>
+  </tr>
+  {% endfor %}
+</table>
+{% endblock %}

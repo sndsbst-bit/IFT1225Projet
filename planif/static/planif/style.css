@@ -1,0 +1,14 @@
+body { font-family: system-ui, sans-serif; max-width: 60rem; margin: 0 auto; padding: 0 1rem; color: #222; }
+header { display: flex; gap: 2rem; align-items: baseline; padding: 1rem 0; border-bottom: 1px solid #ccc; }
+nav a { margin-right: 1rem; }
+.bandeau { font-size: .85rem; color: #555; padding: .5rem 0; }
+table { border-collapse: collapse; width: 100%; margin: .5rem 0 1rem; }
+th, td { text-align: left; padding: .35rem .5rem; border-bottom: 1px solid #e5e5e5; }
+.en-ligne { display: inline; }
+.msg { padding: .5rem; border-left: 3px solid #999; background: #f6f6f6; }
+.msg.success { border-color: #2a7; }
+.msg.warning, .a_risque { color: #a60; }
+.msg.error, .violee { color: #b22; }
+.respectee { color: #2a7; }
+.intention { color: #666; font-style: italic; }
+.colonnes { display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: 1rem; }

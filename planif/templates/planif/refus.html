@@ -1,0 +1,7 @@
+{% extends "planif/base.html" %}
+{% block contenu %}
+<h1>{{ titre }}</h1>
+<p class="msg error">Action refusée, le plan n'a pas changé.</p>
+<ul>{% for m in motifs %}<li>{{ m }}</li>{% endfor %}</ul>
+<a href="{% url 'plan' %}">Retour au plan</a>
+{% endblock %}

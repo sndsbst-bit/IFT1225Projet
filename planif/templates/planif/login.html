@@ -1,0 +1,10 @@
+{% extends "planif/base.html" %}
+{% block contenu %}
+<h1>Connexion</h1>
+<form method="post">{% csrf_token %}
+  {{ form.as_p }}
+  <button>Se connecter</button>
+</form>
+<p><small>Données de démonstration : alice, bob, tremblay, gagnon (mot de passe : demo).</small></p>
+{# TEMP(données): comptes de démonstration créés par la commande seed #}
+{% endblock %}
