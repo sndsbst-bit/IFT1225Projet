@@ -110,7 +110,7 @@ java -jar plantuml.jar -tpng *.puml
 
 | Membre | Matricule | Contribution principale |
 |---|---|---|
-| Soundous Bestam | 20304594 | |
+| Soundous Bestam | 20304594 | Le travail a été fait en équipe avec une contribution équitable et la prise en considération de lavis   de chacun |
 | Ahmed Nassim Es-Snoussi | 20320830 | Le travail a été fait en équipe avec une contribution équitable et la prise en considération de lavis   de chacun|
 | Victorio Nascimento | 20299568 |  |
 
