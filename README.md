@@ -1,4 +1,4 @@
-# IFT1225Projet
+# IFT2225Projet
 # Boussole — plateforme de planification des études
 
 > IFT2255 Génie logiciel · Automne 2026 · Projet de session, phase 1
