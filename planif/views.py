@@ -3,6 +3,7 @@ from functools import wraps
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db import transaction
 from django.core.exceptions import PermissionDenied
 from django.db.models import Avg
 from django.forms import Form, ModelChoiceField, ModelForm
@@ -155,12 +156,13 @@ def ajouter(request, profil, session, pk):
     hote = activite.hote
     if hote and Demande.objects.filter(hote=hote, etat__in=["envoyee", "acceptee"]).count() >= hote.capacite:
         return refus(request, activite.titre, [f"{hote} a atteint sa capacité"])  # CU5
-    Element.objects.filter(profil=profil, session=session, activite=activite).delete()  # intention
-    candidat.save()
-    if hote:
-        Demande.objects.create(
-            element=candidat, profil=profil, activite=activite, hote=hote,
-            expire_le=timezone.localdate() + timedelta(days=DELAI_DEMANDE))
+    with transaction.atomic():
+        Element.objects.filter(profil=profil, session=session, activite=activite).delete()  # intention
+        candidat.save()
+        if hote:
+            Demande.objects.create(
+                element=candidat, profil=profil, activite=activite, hote=hote,
+                expire_le=timezone.localdate() + timedelta(days=DELAI_DEMANDE))
     messages.success(request, f"{activite.titre} ajouté ({candidat.get_etat_display()}).")
     return redirect("plan")
 
@@ -191,11 +193,12 @@ def soumettre(request, profil, session):
                if e.activite.places <= 0]
     if motifs or not a_valider:
         return refus(request, "Soumission refusée", motifs or ["Rien à soumettre"])
-    for e in a_valider:
-        e.etat = "confirme"
-        e.save()
-        e.activite.places -= 1
-        e.activite.save()
+    with transaction.atomic():
+        for e in a_valider:
+            e.etat = "confirme"
+            e.save()
+            e.activite.places -= 1
+            e.activite.save()
     messages.success(request, "Plan accepté par le registrariat (simulé).")
     return redirect("plan")
 
