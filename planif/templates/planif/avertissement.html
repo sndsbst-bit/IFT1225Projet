@@ -1,0 +1,9 @@
+{% extends "planif/base.html" %}
+{% block contenu %}
+<h1>{{ titre }}</h1>
+<ul>{% for m in motifs %}<li>{{ m }}</li>{% endfor %}</ul>
+<form method="post" action="{{ action }}">{% csrf_token %}
+  <input type="hidden" name="confirmer" value="1">
+  <button>Confirmer malgré tout</button> <a href="{% url 'plan' %}">Annuler</a>
+</form>
+{% endblock %}

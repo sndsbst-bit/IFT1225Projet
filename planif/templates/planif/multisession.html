@@ -1,0 +1,26 @@
+{% extends "planif/base.html" %}{% load planif %}
+{% block contenu %}
+<h1>Projection multi-sessions</h1>
+<p>Une intention n'est pas une place réservée. Les règles ci-dessous supposent que les intentions se réalisent.</p>
+<form method="post" class="en-ligne">{% csrf_token %}
+  <select name="activite">{% for a in activites %}<option value="{{ a.pk }}">{{ a.titre }}</option>{% endfor %}</select>
+  <select name="session">{% for c in colonnes %}<option value="{{ c.session.pk }}">{{ c.session }}</option>{% endfor %}</select>
+  <button>Déposer une intention</button>
+</form>
+<div class="colonnes">
+{% for c in colonnes %}
+  <section>
+    <h2>{{ c.session }}</h2>
+    <ul>
+    {% for e in c.elements %}
+      <li class="{{ e.etat }}">{{ e.activite.titre }} <small>({{ e.get_etat_display }})</small>
+        {% if e.etat == "intention" %}
+        <form method="post" action="{% url 'retirer_intention' e.pk %}" class="en-ligne">{% csrf_token %}<button>x</button></form>
+        {% endif %}</li>
+    {% empty %}<li>Rien de prévu</li>{% endfor %}
+    </ul>
+    {% for r, etat, msg in c.regles %}<p class="{{ etat }}"><small>{{ r.libelle }} : {{ etat|etat_regle }}. {{ msg }}</small></p>{% endfor %}
+  </section>
+{% endfor %}
+</div>
+{% endblock %}

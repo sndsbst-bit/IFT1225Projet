@@ -1,0 +1,40 @@
+{% extends "planif/base.html" %}{% load planif %}
+{% block contenu %}
+<h1>Plan de {{ session }}</h1>
+
+{% for e in alertes %}<p class="msg warning">Échéance proche : {{ e.libelle }} le {{ e.date|date:"j F" }}</p>{% endfor %}
+
+<h2>Activités</h2>
+<table>
+  <tr><th>Activité</th><th>Type</th><th>Crédits</th><th>État</th><th></th></tr>
+  {% for e in elements %}
+  <tr>
+    <td>{{ e.activite.titre }}</td><td>{{ e.activite.get_type_display }}</td>
+    <td>{{ e.activite.credits }}</td><td>{{ e.get_etat_display }}</td>
+    <td><form method="post" action="{% url 'retirer' e.pk %}">{% csrf_token %}<button>Retirer</button></form></td>
+  </tr>
+  {% empty %}<tr><td colspan="5">Plan vide. <a href="{% url 'catalogue' %}">Ajouter depuis le catalogue</a>.</td></tr>
+  {% endfor %}
+</table>
+<form method="post" action="{% url 'soumettre' %}">{% csrf_token %}<button>Soumettre au registrariat</button></form>
+{# TEMP(registrariat): la soumission est simulée #}
+
+<h2>Règles du programme</h2>
+<table>
+  {% for r, etat, msg in regles %}
+  <tr><td>{{ r.libelle }}</td><td class="{{ etat }}">{{ etat|etat_regle }}</td><td>{{ msg }}</td></tr>
+  {% endfor %}
+</table>
+
+<h2>Demandes</h2>
+<table>
+  {% for d in demandes %}
+  <tr><td>{{ d.activite.titre }}</td><td>{{ d.hote }}</td><td>{{ d.get_etat_display }}</td>
+      <td>expire le {{ d.expire_le|date:"j F" }}</td></tr>
+  {% empty %}<tr><td>Aucune demande.</td></tr>
+  {% endfor %}
+</table>
+
+<h2>Échéances</h2>
+<ul>{% for e in echeances %}<li>{{ e.date|date:"j F Y" }} : {{ e.libelle }}</li>{% endfor %}</ul>
+{% endblock %}

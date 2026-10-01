@@ -1,0 +1,16 @@
+{% extends "planif/base.html" %}
+{% block contenu %}
+<h1>Mon profil</h1>
+<form method="post">{% csrf_token %}{{ form.as_p }}<button>Enregistrer</button></form>
+
+<h2>Activités terminées</h2>
+<table>
+  {% for a, note in termines %}
+  <tr><td>{{ a.titre }}</td>
+    <td><form method="post" action="{% url 'apprecier' a.pk %}" class="en-ligne">{% csrf_token %}
+      <select name="note">{% for i in "12345" %}<option value="{{ i }}" {% if note|stringformat:"s" == i %}selected{% endif %}>{{ i }}</option>{% endfor %}</select>
+      <button>Apprécier</button></form></td></tr>
+  {% empty %}<tr><td>Aucune activité terminée.</td></tr>
+  {% endfor %}
+</table>
+{% endblock %}
