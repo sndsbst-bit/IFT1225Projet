@@ -1,0 +1,46 @@
+{
+  "_note": "Offre simulée pour l'automne 2026. Les préalables et les capacités sont illustratifs ; dans le système visé, ils sont importés du répertoire des cours.",
+  "cours": [
+    { "code": "IFT2015", "titre": "Structures de données", "credits": 3, "bloc": "oblig", "prealables": ["IFT1025"], "places": 40, "inscrits": 31 },
+    { "code": "IFT2035", "titre": "Concepts des langages de programmation", "credits": 3, "bloc": "oblig", "prealables": ["IFT1025"], "places": 45, "inscrits": 20 },
+    { "code": "IFT2105", "titre": "Introduction à l'informatique théorique", "credits": 3, "bloc": "oblig", "prealables": ["IFT1065"], "places": 60, "inscrits": 41 },
+    { "code": "IFT2255", "titre": "Génie logiciel", "credits": 3, "bloc": "oblig", "prealables": ["IFT1025"], "places": 40, "inscrits": 40 },
+    { "code": "IFT2245", "titre": "Introduction aux systèmes d'exploitation", "credits": 3, "bloc": "oblig", "prealables": ["IFT1227", "IFT2015"], "places": 36, "inscrits": 12 },
+    { "code": "IFT3395", "titre": "Fondements de l'apprentissage machine", "credits": 3, "bloc": "options", "prealables": ["IFT2015", "STT1700"], "places": 60, "inscrits": 22 },
+    { "code": "IFT3225", "titre": "Technologies de l'Internet", "credits": 3, "bloc": "options", "prealables": ["IFT1025"], "places": 50, "inscrits": 30 },
+    { "code": "IFT2905", "titre": "Interfaces personne-machine", "credits": 3, "bloc": "options", "prealables": ["IFT1025"], "places": 40, "inscrits": 18 },
+    { "code": "COM1500", "titre": "Communication et technologies", "credits": 3, "bloc": "choix", "prealables": [], "places": 80, "inscrits": 44 },
+    { "code": "FINA10200", "titre": "Finance (HEC Montréal)", "credits": 3, "bloc": "hors", "prealables": [], "places": 25, "inscrits": 14, "autorisation": "Autorisation de la direction de programme et entente interétablissements" }
+  ],
+  "projets": [
+    {
+      "id": "P1", "titre": "Outil d'aide à la correction de travaux", "domaine": "Génie logiciel",
+      "encadrant": "Prof. Lavoie", "credits": 3, "creditsMinimum": 24, "places": 2, "inscrits": 0,
+      "indicateur": { "demandesEnAttente": 1, "delaiHabituelJours": 3 },
+      "reponseSimulee": { "apresJours": 3, "decision": "accepte" }
+    },
+    {
+      "id": "P2", "titre": "Tolérance aux pannes dans un système réparti", "domaine": "Systèmes",
+      "encadrant": "Prof. Okonkwo", "credits": 3, "creditsMinimum": 24, "places": 3, "inscrits": 1,
+      "indicateur": { "demandesEnAttente": 9, "delaiHabituelJours": 12 },
+      "reponseSimulee": null
+    },
+    {
+      "id": "P3", "titre": "Détection d'anomalies par apprentissage", "domaine": "Données et IA",
+      "encadrant": "Prof. Bhattacharya", "credits": 3, "creditsMinimum": 60, "places": 2, "inscrits": 0,
+      "indicateur": { "demandesEnAttente": 4, "delaiHabituelJours": 6 },
+      "reponseSimulee": { "apresJours": 5, "decision": "refuse" }
+    },
+    {
+      "id": "P4", "titre": "Visualisation de réseaux informatiques", "domaine": "Systèmes",
+      "encadrant": "Prof. Girard", "credits": 3, "creditsMinimum": 24, "places": 2, "inscrits": 0,
+      "indicateur": { "demandesEnAttente": 0, "delaiHabituelJours": 2 },
+      "reponseSimulee": { "apresJours": 2, "decision": "accepte" }
+    }
+  ],
+  "activites": [
+    { "id": "A1", "titre": "Visite de terrain — studio de jeux vidéo", "type": "Visite", "places": 15, "inscrits": 9 },
+    { "id": "A2", "titre": "Séminaire du DIRO — sécurité logicielle", "type": "Séminaire", "places": 60, "inscrits": 20 },
+    { "id": "A3", "titre": "Concours de programmation (équipe)", "type": "Concours", "places": 12, "inscrits": 12 }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "_note": "Dossier fictif. Dans le système visé, il est importé de Synchro avec le consentement de la personne (EX-02).",
+  "nom": "Profil de démonstration",
+  "programme": "Baccalauréat en informatique (structure simplifiée)",
+  "creditsProgramme": 90,
+  "source": "importé",
+  "blocs": [
+    { "id": "oblig", "nom": "Cours obligatoires", "credits": 51 },
+    { "id": "options", "nom": "Cours à option", "credits": 30 },
+    { "id": "choix", "nom": "Cours au choix", "credits": 9 }
+  ],
+  "coursReussis": [
+    { "code": "IFT1015", "bloc": "oblig", "credits": 3 },
+    { "code": "IFT1025", "bloc": "oblig", "credits": 3 },
+    { "code": "IFT1065", "bloc": "oblig", "credits": 3 },
+    { "code": "IFT1215", "bloc": "oblig", "credits": 3 },
+    { "code": "IFT1227", "bloc": "oblig", "credits": 3 },
+    { "code": "MAT1400", "bloc": "oblig", "credits": 3 },
+    { "code": "MAT1978", "bloc": "oblig", "credits": 3 },
+    { "code": "IFT1005", "bloc": "options", "credits": 3 },
+    { "code": "STT1700", "bloc": "options", "credits": 3 },
+    { "code": "IFT1575", "bloc": "choix", "credits": 3 }
+  ]
+}

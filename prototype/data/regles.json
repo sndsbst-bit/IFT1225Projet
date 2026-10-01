@@ -1,0 +1,13 @@
+{
+  "_note": "Valeurs illustratives pour le prototype. À vérifier et citer dans le règlement des études de premier cycle et le calendrier universitaire.",
+  "session": "Automne 2026",
+  "dateDebut": "2026-09-08",
+  "dateLimiteModification": "2026-09-16",
+  "dateLimiteAbandon": "2026-11-06",
+  "seuilTempsPlein": 12,
+  "plafondCredits": 18,
+  "consequenceTempsPartiel": "Sous le seuil de temps plein, votre statut devient « temps partiel » : cela peut réduire ou suspendre vos prêts et bourses (Aide financière aux études).",
+  "delaiReponseJours": 7,
+  "rappelAvantJours": 2,
+  "prolongationRelanceJours": 3
+}

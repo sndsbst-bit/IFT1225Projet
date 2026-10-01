@@ -1,0 +1,40 @@
+@startuml A2-F5-projeter-cheminement
+skinparam defaultFontName DejaVu Sans
+skinparam defaultFontSize 12
+skinparam shadowing false
+skinparam ActivityBackgroundColor #F4F7FB
+skinparam ActivityBorderColor #2F4F6F
+skinparam SwimlaneTitleFontStyle bold
+title F5 — Projeter un cheminement sur plusieurs sessions (CU10)
+|Personne étudiante|
+start
+:Ouvre la vue multi-sessions;
+:Dépose une intention\n(cours X à l'hiver 2027);
+|Système Boussole|
+if (Cours offert à cette session ?) then (non)
+  :Indique les sessions où il est offert;
+  |Personne étudiante|
+  if (Déplace l'intention ?) then (oui)
+    |Système Boussole|
+  else (non)
+    stop
+  endif
+else (oui)
+endif
+|Système Boussole|
+if (Préalables prévus aux sessions\nprécédentes ?) then (non)
+  :Signale la chaîne de préalables\nà planifier avant;
+else (oui)
+endif
+:Recalcule la progression\npar bloc et la date de diplomation;
+:Marque l'élément « intention »\n(aucune place réservée);
+|Personne étudiante|
+:Consulte le cheminement projeté;
+|Système Boussole|
+if (Ouverture de l'inscription\nà cette session ?) then (oui)
+  :Rappelle de convertir l'intention\nen ajout réel (F1);
+else (non)
+endif
+|Personne étudiante|
+stop
+@enduml

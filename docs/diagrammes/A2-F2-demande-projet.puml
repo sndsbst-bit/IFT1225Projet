@@ -1,0 +1,68 @@
+@startuml A2-F2-demande-projet
+skinparam defaultFontName DejaVu Sans
+skinparam defaultFontSize 12
+skinparam shadowing false
+skinparam ActivityBackgroundColor #F4F7FB
+skinparam ActivityBorderColor #2F4F6F
+skinparam SwimlaneTitleFontStyle bold
+title F2 — Demander un projet supervisé (CU05, CU06, CU07)
+|Personne étudiante|
+start
+:Choisit une offre de projet;
+:Rédige la demande\n(sujet visé, disponibilités);
+|Système Boussole|
+if (Admissible ?\n(crédits, préalables)) then (non)
+  :Indique la condition manquante;
+  stop
+  note right: Échec : non admissible
+else (oui)
+endif
+:Affiche l'indicateur de disponibilité\n(demandes en attente, délai habituel);
+:Enregistre la demande « envoyée »\net démarre le délai (7 j);
+:Notifie la personne qui encadre;
+|Personne qui encadre|
+if (Répond avant le délai ?) then (non)
+  |Système Boussole|
+  :Rappelle à la personne étudiante\nque le délai approche (J-2);
+  |Personne étudiante|
+  if (Choix ?) then (rediriger)
+    |Système Boussole|
+    :Retire la demande et propose\ndes offres équivalentes;
+    stop
+    note right: Échec : aucune réponse
+  else (relancer)
+    |Système Boussole|
+    :Envoie une relance unique\net prolonge le délai (3 j);
+    |Personne qui encadre|
+    if (Répond dans le délai prolongé ?) then (non)
+      |Système Boussole|
+      :Expire la demande\net libère la personne étudiante;
+      stop
+      note right: Échec : expiration
+    else (oui)
+    endif
+  endif
+else (oui)
+endif
+|Personne qui encadre|
+if (Accepte ?) then (non)
+  |Système Boussole|
+  :Passe à « refusé » avec motif\net propose d'autres offres;
+  stop
+else (oui)
+endif
+|Personne qui encadre|
+:Propose une entente\n(sujet, modalités, crédits);
+|Personne étudiante|
+:Accepte l'entente;
+|Conseil de programme|
+if (Approuve l'inscription ?) then (non)
+  |Système Boussole|
+  :Passe à « refusé » avec motif;
+  stop
+else (oui)
+endif
+|Système Boussole|
+:Passe l'élément à « confirmé »\net met à jour les crédits;
+stop
+@enduml

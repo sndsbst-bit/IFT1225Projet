@@ -1,0 +1,67 @@
+@startuml A1-cas-utilisation
+left to right direction
+skinparam defaultFontName DejaVu Sans
+skinparam defaultFontSize 13
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam usecase {
+  BackgroundColor #F4F7FB
+  BorderColor #2F4F6F
+}
+skinparam actorStyle awesome
+
+actor "Personne\nétudiante" as ETU
+actor "Personne qui\nencadre" as ENC <<secondaire>>
+actor "Laboratoire /\norganisation" as ORG <<secondaire>>
+actor "Conseil de\nprogramme" as CP <<secondaire>>
+actor "Synchro\n(dossier étudiant)" as SYN <<système externe>>
+actor "Répertoire des cours\net des programmes" as REP <<système externe>>
+actor "Calendrier\nuniversitaire" as CAL <<système externe>>
+actor "Service de\ncourriel" as MAIL <<système externe>>
+
+rectangle "Boussole — plateforme de planification des études" {
+  usecase "CU01 Configurer son profil\net son programme" as CU01
+  usecase "CU02 Explorer l'offre\nunifiée" as CU02
+  usecase "CU03 Construire son\nplan de session" as CU03
+  usecase "CU04 Vérifier la\nconformité du plan" as CU04
+  usecase "CU05 Demander une\nplace encadrée" as CU05
+  usecase "CU06 Relancer ou rediriger\nune demande en attente" as CU06
+  usecase "CU07 Traiter une\ndemande" as CU07
+  usecase "CU08 Publier une offre\nde place" as CU08
+  usecase "CU09 Modifier ou abandonner\nune inscription" as CU09
+  usecase "CU10 Projeter un cheminement\nmulti-sessions" as CU10
+  usecase "Importer le dossier\nétudiant" as UI1
+  usecase "Signaler une\néchéance" as UI2
+  usecase "Consulter les indicateurs\nde disponibilité" as UI3
+  usecase "Valider un plan\nhors norme" as UI4
+}
+
+ETU -- CU01
+ETU -- CU02
+ETU -- CU03
+ETU -- CU05
+ETU -- CU09
+ETU -- CU10
+
+CU01 ..> UI1 : <<include>>
+CU03 ..> CU04 : <<include>>
+CU05 ..> CU04 : <<include>>
+CU09 ..> CU04 : <<include>>
+CU10 ..> CU04 : <<include>>
+UI3 .up.> CU02 : <<extend>>
+CU06 .up.> CU05 : <<extend>>\n[délai dépassé]
+UI2 .up.> CU09 : <<extend>>\n[date limite proche]
+UI4 .up.> CU04 : <<extend>>\n[dérogation demandée]
+
+CU07 -- ENC
+CU08 -- ENC
+CU08 -- ORG
+CU07 -- ORG
+UI4 -- CP
+UI1 -- SYN
+CU02 -- REP
+CU04 -- REP
+UI2 -- CAL
+UI2 -- MAIL
+CU06 -- MAIL
+@enduml

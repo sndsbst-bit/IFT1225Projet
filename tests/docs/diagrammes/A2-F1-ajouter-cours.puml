@@ -1,0 +1,59 @@
+@startuml A2-F1-ajouter-cours
+skinparam defaultFontName DejaVu Sans
+skinparam defaultFontSize 12
+skinparam shadowing false
+skinparam ActivityBackgroundColor #F4F7FB
+skinparam ActivityBorderColor #2F4F6F
+skinparam SwimlaneTitleFontStyle bold
+title F1 — Ajouter un cours au plan de session (CU03 + CU04)
+|Personne étudiante|
+start
+:Choisit un cours dans l'offre;
+:Clique « Ajouter au plan »;
+|Système Boussole|
+:Récupère le dossier importé\net la structure du programme;
+if (Préalables satisfaits ?) then (non)
+  :Affiche le préalable manquant\net la session où il est offert;
+  |Personne étudiante|
+  :Consulte l'explication;
+  stop
+  note right: Fin en échec :\naucun ajout
+else (oui)
+  |Système Boussole|
+endif
+if (Conflit d'horaire ?) then (oui)
+  :Affiche les deux cours en conflit\net les autres sections;
+  |Personne étudiante|
+  if (Choisit une autre section ?) then (oui)
+    |Système Boussole|
+  else (non)
+    |Personne étudiante|
+    stop
+  endif
+else (non)
+endif
+|Système Boussole|
+if (Places restantes > 0 ?) then (non)
+  :Propose des cours équivalents\ndu même bloc;
+  |Personne étudiante|
+  stop
+else (oui)
+endif
+|Système Boussole|
+:Recalcule crédits, charge\net seuil de temps plein;
+if (Plafond de crédits dépassé ?) then (oui)
+  :Refuse et indique le plafond;
+  |Personne étudiante|
+  stop
+else (non)
+endif
+|Système Boussole|
+if (Sous le seuil de temps plein ?) then (oui)
+  :Affiche un avertissement\n(conséquence : prêts et bourses);
+else (non)
+endif
+:Ajoute le cours à l'état « prévu »\net indique le bloc qu'il remplit;
+|Personne étudiante|
+:Voit le plan mis à jour;
+stop
+@enduml

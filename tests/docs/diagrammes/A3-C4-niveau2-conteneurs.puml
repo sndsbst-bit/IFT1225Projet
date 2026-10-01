@@ -1,0 +1,39 @@
+@startuml A3-C4-niveau2-conteneurs
+!include <C4/C4_Container>
+skinparam defaultFontName DejaVu Sans
+LAYOUT_TOP_DOWN()
+title Niveau 2 — Conteneurs du système Boussole
+
+Person(etu, "Personne étudiante", "")
+Person(enc, "Personne qui encadre /\nlaboratoire / organisation", "")
+Person(cp, "Conseil de programme", "")
+
+System_Boundary(b, "Boussole") {
+  Container(spa, "Application web", "React + TypeScript (SPA)", "Offre, plan de session, vue multi-sessions, demandes, alertes.")
+  Container(api, "API applicative", "Java 21 / Spring Boot", "Logique métier : plan, demandes, états, autorisations.")
+  Container(regles, "Moteur de règles", "Module Java (dans l'API)", "Préalables, horaire, plafonds, temps plein, blocs, échéances.")
+  Container(ordo, "Ordonnanceur", "Spring Scheduler", "Délais de réponse, expirations, rappels J-7 / J-2.")
+  Container(imp, "Service d'import", "Java, tâche planifiée", "Synchronise répertoire, calendrier et dossiers.")
+  ContainerDb(bd, "Base de données", "PostgreSQL", "Profils, plans, offres, demandes, historique, programmes.")
+}
+
+System_Ext(syn, "Synchro", "Dossier étudiant")
+System_Ext(rep, "Répertoire des cours", "Cours et programmes")
+System_Ext(cal, "Calendrier universitaire", "Dates limites")
+System_Ext(auth, "Authentification UdeM", "SSO")
+System_Ext(mail, "Service de courriel", "SMTP")
+
+Rel(etu, spa, "Utilise", "HTTPS")
+Rel(enc, spa, "Publie et répond", "HTTPS")
+Rel(cp, spa, "Approuve", "HTTPS")
+Rel(spa, api, "Requêtes et réponses", "JSON / HTTPS (REST)")
+Rel(spa, auth, "Redirige pour connexion", "OIDC")
+Rel(api, regles, "Demande une vérification de plan", "Appel de méthode")
+Rel(api, bd, "Lit et écrit", "SQL / JDBC")
+Rel(ordo, bd, "Lit les délais, écrit les états expirés", "SQL / JDBC")
+Rel(ordo, mail, "Envoie rappels et notifications", "SMTP")
+Rel(imp, bd, "Écrit cours, dates, dossiers", "SQL / JDBC")
+Rel(imp, syn, "Lit le dossier (avec consentement)", "API REST, lecture seule")
+Rel(imp, rep, "Importe l'offre et les programmes", "JSON / HTTPS, nuit")
+Rel(imp, cal, "Importe les dates limites", "iCal / HTTPS, hebdomadaire")
+@enduml

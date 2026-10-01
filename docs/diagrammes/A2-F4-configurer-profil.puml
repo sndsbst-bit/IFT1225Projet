@@ -1,0 +1,43 @@
+@startuml A2-F4-configurer-profil
+skinparam defaultFontName DejaVu Sans
+skinparam defaultFontSize 12
+skinparam shadowing false
+skinparam ActivityBackgroundColor #F4F7FB
+skinparam ActivityBorderColor #2F4F6F
+skinparam SwimlaneTitleFontStyle bold
+title F4 — Configurer son profil et son programme (CU01)
+|Personne étudiante|
+start
+:Se connecte (authentification UdeM);
+|Système Boussole|
+:Demande le consentement\nà l'import du dossier;
+|Personne étudiante|
+if (Consent ?) then (oui)
+  |Synchro|
+  if (Dossier disponible ?) then (oui)
+    :Transmet programme, cours réussis,\ncrédits acquis;
+    |Système Boussole|
+  else (non / service indisponible)
+    |Système Boussole|
+    :Signale l'échec d'import;
+    :Propose une saisie manuelle\n(marquée « non vérifiée »);
+  endif
+else (non)
+  |Système Boussole|
+  :Propose une saisie manuelle\n(marquée « non vérifiée »);
+endif
+|Répertoire des cours|
+:Fournit la structure du programme\n(blocs, crédits, préalables);
+|Système Boussole|
+:Calcule crédits restants par bloc;
+|Personne étudiante|
+:Déclare intérêts, crédits visés,\nheures de travail rémunéré;
+|Système Boussole|
+if (Charge déclarée incompatible\navec les crédits visés ?) then (oui)
+  :Suggère une charge réaliste;
+else (non)
+endif
+:Enregistre le profil;
+|Personne étudiante|
+stop
+@enduml

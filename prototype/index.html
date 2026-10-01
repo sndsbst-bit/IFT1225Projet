@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="fr-CA">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Boussole — prototype</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="entete">
+    <div>
+      <h1>Boussole <span class="sous-titre">prototype · phase 1</span></h1>
+      <p id="profil" class="profil"></p>
+    </div>
+    <div class="temps">
+      <span>Aujourd'hui : <strong id="date"></strong></span>
+      <button id="avancer" class="btn">Avancer d'un jour ▸</button>
+      <button id="reinitialiser" class="btn btn-discret">Réinitialiser</button>
+    </div>
+  </header>
+
+  <div id="bandeau-echeance" class="bandeau"></div>
+
+  <main class="grille">
+    <section class="panneau" aria-labelledby="titre-offre">
+      <h2 id="titre-offre">Offre de la session</h2>
+      <div class="onglets" role="tablist">
+        <button class="onglet actif" data-onglet="cours" role="tab">Cours</button>
+        <button class="onglet" data-onglet="projets" role="tab">Projets supervisés</button>
+        <button class="onglet" data-onglet="activites" role="tab">Activités</button>
+      </div>
+      <input id="recherche" type="search" placeholder="Filtrer (code, titre, domaine)…" aria-label="Filtrer l'offre">
+      <div id="message" class="message" role="status" aria-live="polite"></div>
+      <div id="liste-offre"></div>
+    </section>
+
+    <section class="panneau" aria-labelledby="titre-plan">
+      <h2 id="titre-plan">Mon plan — <span id="session"></span></h2>
+      <div id="temps-plein"></div>
+      <div id="plan"></div>
+      <h3>Progression dans le programme</h3>
+      <p class="aide">Seuls les éléments crédités comptent. Les activités et les cours hors programme n'y figurent pas.</p>
+      <div id="progression"></div>
+      <button id="confirmer" class="btn btn-principal">Confirmer le plan</button>
+
+      <h3>Mes demandes de projet</h3>
+      <div id="demandes"></div>
+    </section>
+  </main>
+
+  <section class="panneau journal" aria-labelledby="titre-journal">
+    <h2 id="titre-journal">Journal</h2>
+    <ul id="journal"></ul>
+  </section>
+
+  <dialog id="dialogue-temps-plein">
+    <form method="dialog">
+      <h2>Votre plan est sous le temps plein</h2>
+      <p id="dialogue-texte"></p>
+      <label class="case"><input type="checkbox" id="compris"> J'ai compris la conséquence et je confirme quand même.</label>
+      <div class="actions">
+        <button value="annuler" class="btn">Revenir au plan</button>
+        <button value="confirmer" id="dialogue-confirmer" class="btn btn-principal" disabled>Confirmer en temps partiel</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

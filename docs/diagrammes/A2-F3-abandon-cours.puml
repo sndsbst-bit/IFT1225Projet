@@ -1,0 +1,47 @@
+@startuml A2-F3-abandon-cours
+skinparam defaultFontName DejaVu Sans
+skinparam defaultFontSize 12
+skinparam shadowing false
+skinparam ActivityBackgroundColor #F4F7FB
+skinparam ActivityBorderColor #2F4F6F
+skinparam SwimlaneTitleFontStyle bold
+title F3 — Modifier ou abandonner une inscription avant l'échéance (CU09)
+|Calendrier universitaire|
+start
+:Publie les dates limites\n(modification, abandon avec frais);
+|Système Boussole|
+:Importe les dates et calcule\nles rappels (J-7, J-2);
+:Envoie le rappel à la personne étudiante;
+|Personne étudiante|
+:Ouvre le cours concerné;
+:Demande l'abandon;
+|Système Boussole|
+if (Date du jour ?) then (avant la limite\nde modification)
+  :Conséquence : retrait sans frais\nni mention au relevé;
+elseif () then (entre les deux limites)
+  :Conséquence : frais conservés,\nmention « abandon » au relevé;
+else (après la limite\nd'abandon)
+  :Abandon impossible ici :\nindique la procédure d'exception;
+  |Personne étudiante|
+  stop
+  note right: Fin en échec :\néchéance dépassée
+endif
+|Système Boussole|
+:Recalcule les crédits;
+if (Passe sous le temps plein ?) then (oui)
+  :Avertit de l'impact\nsur les prêts et bourses;
+else (non)
+endif
+|Personne étudiante|
+if (Confirme ?) then (non)
+  stop
+else (oui)
+endif
+:Effectue l'abandon dans Synchro\n(lien direct fourni);
+|Synchro|
+:Enregistre l'abandon;
+|Système Boussole|
+:Resynchronise le dossier\net met le plan à jour;
+|Personne étudiante|
+stop
+@enduml

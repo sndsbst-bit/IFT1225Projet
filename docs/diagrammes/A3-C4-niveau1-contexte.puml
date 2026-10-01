@@ -1,0 +1,31 @@
+@startuml A3-C4-niveau1-contexte
+!include <C4/C4_Context>
+skinparam defaultFontName DejaVu Sans
+LAYOUT_TOP_DOWN()
+title Niveau 1 — Contexte du système Boussole
+
+Person(etu, "Personne étudiante", "Construit son plan de session et projette son cheminement.")
+Person(enc, "Personne qui encadre", "Professeur ou chargé·e de projet ; publie des places, traite les demandes.")
+Person(org, "Laboratoire / organisation", "Publie des postes, stages et activités ; sélectionne.")
+Person(cp, "Conseil de programme", "Approuve les projets et les plans hors norme.")
+
+System(bous, "Boussole", "Plateforme de planification des études : offre unifiée, plan de session, vérification des règles, demandes, échéances, cheminement.")
+
+System_Ext(syn, "Synchro (Centre étudiant)", "Dossier étudiant officiel et inscriptions.")
+System_Ext(rep, "Répertoire des cours et programmes", "Cours, préalables, structures de programme, offre par session.")
+System_Ext(cal, "Calendrier universitaire", "Dates limites officielles.")
+System_Ext(auth, "Authentification UdeM", "Connexion unique (SSO).")
+System_Ext(mail, "Service de courriel", "Acheminement des notifications.")
+
+Rel(etu, bous, "Planifie, envoie des demandes, reçoit des alertes", "HTTPS / navigateur")
+Rel(enc, bous, "Publie des offres, répond aux demandes", "HTTPS / navigateur")
+Rel(org, bous, "Publie des places, sélectionne", "HTTPS / navigateur")
+Rel(cp, bous, "Approuve ou refuse", "HTTPS / navigateur")
+
+Rel(bous, syn, "Lit le dossier (cours réussis, crédits, inscriptions)", "API REST, lecture seule")
+Rel(etu, syn, "S'inscrit et abandonne officiellement", "HTTPS")
+Rel(bous, rep, "Importe cours, préalables, programmes", "Import planifié, JSON/HTTPS")
+Rel(bous, cal, "Importe les dates limites", "Import planifié, iCal/HTTPS")
+Rel(bous, auth, "Délègue l'authentification", "OIDC / SAML")
+Rel(bous, mail, "Envoie rappels et notifications", "SMTP")
+@enduml
