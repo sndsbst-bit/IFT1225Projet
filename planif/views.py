@@ -252,7 +252,10 @@ def multisession(request, profil, session):
         if not activite.sessions.filter(pk=s.pk).exists():
             messages.error(request, f"{activite.titre} n'est pas offerte à la session {s}.")
         else:
-            Element.objects.create(profil=profil, session=s, activite=activite, etat="intention")
+            _, cree = Element.objects.get_or_create(
+                profil=profil, session=s, activite=activite, defaults={"etat": "intention"})
+            if not cree:
+                messages.error(request, f"{activite.titre} est déjà dans le plan de {s}.")
         return redirect("multisession")
     colonnes = []
     for s in Session.objects.all():
