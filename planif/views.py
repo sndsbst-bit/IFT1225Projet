@@ -4,6 +4,7 @@ from functools import wraps
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
+from django.http import HttpResponseBadRequest
 from django.core.exceptions import PermissionDenied
 from django.db.models import Avg
 from django.forms import Form, ModelChoiceField, ModelForm
@@ -220,6 +221,8 @@ def demandes(request, profil, session):
 def repondre(request, profil, session, pk):
     d = get_object_or_404(Demande, pk=pk, hote=profil.hote, etat="envoyee")
     reponse = request.POST.get("reponse")
+    if reponse not in ("accepter", "refuser"):
+        return HttpResponseBadRequest("Réponse invalide")
     d.etat = "acceptee" if reponse == "accepter" else "refusee"
     d.save()
     if reponse == "accepter":
