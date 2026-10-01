@@ -176,6 +176,9 @@ def retirer(request, profil, session, pk):
     if abandon and timezone.localdate() > abandon.date and not request.POST.get("confirmer"):
         return avertir(request, f"Retirer {e.activite.titre}",
                        [f"Date limite d'abandon passée ({abandon.date}) : frais possibles."])
+    if e.etat == "confirme":
+        e.activite.places += 1
+        e.activite.save()
     Demande.objects.filter(element=e).update(etat="refusee")
     e.delete()
     messages.success(request, "Activité retirée.")
