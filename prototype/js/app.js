@@ -30,7 +30,7 @@ function rendreOffre() {
       html += `
         <div class="element">
           <div>
-            <div class="titre">${c.code} — ${c.titre}</div>
+            <div class="titre">${c.code} : ${c.titre}</div>
             <div class="details">
               <span class="etiquette">${c.credits} cr.</span>
               <span class="etiquette ${c.bloc === "hors" ? "hors" : ""}">${nomBloc(c.bloc)}</span>
@@ -95,13 +95,13 @@ function rendrePlan() {
   let html = "";
   for (const code of plan.cours) {
     const c = offre.cours.find((x) => x.code === code);
-    html += `<div class="element"><div><div class="titre">${c.code} — ${c.titre}</div>
+    html += `<div class="element"><div><div class="titre">${c.code} : ${c.titre}</div>
       <div class="details"><span class="etiquette">${c.credits} cr.</span><span class="etiquette ${c.bloc === "hors" ? "hors" : ""}">${nomBloc(c.bloc)}</span> État : prévu</div></div>
       <button class="btn" data-action="retirer-cours" data-id="${c.code}">Retirer</button></div>`;
   }
   for (const id of plan.projets) {
     const p = offre.projets.find((x) => x.id === id);
-    html += `<div class="element"><div><div class="titre">Projet — ${p.titre}</div>
+    html += `<div class="element"><div><div class="titre">Projet : ${p.titre}</div>
       <div class="details"><span class="etiquette">${p.credits} cr.</span> ${p.encadrant} · État : confirmé</div></div></div>`;
   }
   for (const id of plan.activites) {
