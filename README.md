@@ -1,5 +1,5 @@
 # IFT2225Projet
-# Boussole — plateforme de planification des études
+# Boussole: plateforme de planification des études
 
 > IFT2255 Génie logiciel · Automne 2026 · Projet de session, phase 1
 > Release évaluée : `v1.0-phase1` (2 octobre 2026)
@@ -25,8 +25,8 @@ Ce dépôt contient le **prototype** de notre solution et les **sources des diag
 | Progression par bloc qui ne compte que les éléments crédités (les activités valent 0 crédit) | EX-01, EX-06 |
 | Demande de projet : vérification d'admissibilité, délai de réponse affiché, rappel à J-2, relance unique ou redirection vers des offres équivalentes, expiration visible | EX-10 |
 | Indicateur agrégé de disponibilité pour chaque projet (demandes en attente, délai habituel) | EX-11 (partiel) |
-| Journal de tous les événements (ajouts, refus, rappels, réponses) | — |
-| 13 tests unitaires sur le moteur de règles et le cycle des demandes | — |
+| Journal de tous les événements (ajouts, refus, rappels, réponses) | ... |
+| 13 tests unitaires sur le moteur de règles et le cycle des demandes | ... |
 
 ### Ce qui est simulé
 
@@ -52,8 +52,8 @@ Ce dépôt contient le **prototype** de notre solution et les **sources des diag
 **Prérequis :** un navigateur récent et Python 3. Aucune dépendance à installer.
 
 ```bash
-git clone https://github.com/[À COMPLÉTER]/[À COMPLÉTER].git
-cd [À COMPLÉTER]/prototype
+git clone https://github.com/sndsbst-bit/IFT1225Projet.git
+cd IFT1225Projet/prototype
 python3 -m http.server 8000
 ```
 
@@ -108,11 +108,26 @@ java -jar plantuml.jar -tpng *.puml
 
 ## 4. Équipe et répartition du travail
 
-| Membre | Matricule | Contribution principale |
-|---|---|---|
-| Soundous Bestam | 20304594 | Le travail a été fait en équipe avec une contribution équitable et la prise en considération de lavis   de chacun |
-| Ahmed Nassim Es-Snoussi | 20320830 | Le travail a été fait en équipe avec une contribution équitable et la prise en considération de lavis   de chacun|
-| Victorio Nascimento | 20299568 |  |
+<table>
+  <tr>
+    <th>Membre</th>
+    <th>Matricule</th>
+    <th>Contribution principale</th>
+  </tr>
+  <tr>
+    <td>Soundous Bestam</td>
+    <td>20304594</td>
+    <td rowspan="3">Le travail a été fait en équipe avec une contribution équitable et la prise en considération de l'avis de chacun.</td>
+  </tr>
+  <tr>
+    <td>Ahmed Nassim Es-Snoussi</td>
+    <td>20320830</td>
+  </tr>
+  <tr>
+    <td>Victorio Nascimento</td>
+    <td>20299568</td>
+  </tr>
+</table>
 
 
 Toutes les personnes de l'équipe ont relu le rapport.
