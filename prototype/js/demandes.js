@@ -78,7 +78,7 @@ export function avancerDemande(demande, projet, date, regles) {
   return { demande, evenement: null };
 }
 
-/** CU06 — relance unique : prolonge le délai. */
+/** CU06 : relance unique : prolonge le délai. */
 export function relancer(demande, regles) {
   if (demande.etat !== "envoyee") throw new Error("Seule une demande en attente peut être relancée.");
   if (demande.relancee) throw new Error("Une seule relance est permise par demande.");
@@ -90,7 +90,7 @@ export function relancer(demande, regles) {
   };
 }
 
-/** CU06 — redirection : retire la demande. Les offres équivalentes sont calculées par l'appelant. */
+/** CU06 : redirection : retire la demande. Les offres équivalentes sont calculées par l'appelant. */
 export function retirer(demande) {
   if (demande.etat !== "envoyee") throw new Error("Seule une demande en attente peut être retirée.");
   return { ...demande, etat: "retiree", motif: "Retirée par la personne étudiante." };

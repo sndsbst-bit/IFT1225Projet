@@ -39,8 +39,8 @@
     }
   ],
   "activites": [
-    { "id": "A1", "titre": "Visite de terrain — studio de jeux vidéo", "type": "Visite", "places": 15, "inscrits": 9 },
-    { "id": "A2", "titre": "Séminaire du DIRO — sécurité logicielle", "type": "Séminaire", "places": 60, "inscrits": 20 },
+    { "id": "A1", "titre": "Visite de terrain : studio de jeux vidéo", "type": "Visite", "places": 15, "inscrits": 9 },
+    { "id": "A2", "titre": "Séminaire du DIRO : sécurité logicielle", "type": "Séminaire", "places": 60, "inscrits": 20 },
     { "id": "A3", "titre": "Concours de programmation (équipe)", "type": "Concours", "places": 12, "inscrits": 12 }
   ]
 }
