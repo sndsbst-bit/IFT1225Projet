@@ -131,7 +131,7 @@ java -jar plantuml.jar -tpng *.puml
 
 
 Toutes les personnes de l'équipe ont relu le rapport.
-Le travail a été fait principalement en séances communes (VS Code). Les commits ont été poussés depuis le compte de Soundous Bestam, avec les autres membres en co-auteurs.
+NOTE IMPORTANTE :Le travail a été fait principalement en séances communes (VS Code), surtout en présentiel. Les commits ont été poussés depuis le compte de Soundous Bestam, avec les autres membres en co-auteurs.
 
 ## 5. Outils d'assistance logicielle
 
