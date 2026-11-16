@@ -1,8 +1,9 @@
 @startuml A3-C4-niveau1-contexte
+' Révision phase 2 : le « Répertoire des cours et programmes » est remplacé par l'API Planifium.
 !include <C4/C4_Context>
 skinparam defaultFontName DejaVu Sans
 LAYOUT_TOP_DOWN()
-title Niveau 1 — Contexte du système Boussole
+title Niveau 1 — Contexte du système Boussole (révisé en phase 2)
 
 Person(etu, "Personne étudiante", "Construit son plan de session et projette son cheminement.")
 Person(enc, "Personne qui encadre", "Professeur ou chargé·e de projet ; publie des places, traite les demandes.")
@@ -11,21 +12,21 @@ Person(cp, "Conseil de programme", "Approuve les projets et les plans hors norme
 
 System(bous, "Boussole", "Plateforme de planification des études : offre unifiée, plan de session, vérification des règles, demandes, échéances, cheminement.")
 
+System_Ext(plan, "Planifium", "API publique en lecture seule : cours, exigences, programmes, horaires ; évalue l'éligibilité et les conflits. Ne conserve aucune donnée étudiante.")
 System_Ext(syn, "Synchro (Centre étudiant)", "Dossier étudiant officiel et inscriptions.")
-System_Ext(rep, "Répertoire des cours et programmes", "Cours, préalables, structures de programme, offre par session.")
-System_Ext(cal, "Calendrier universitaire", "Dates limites officielles.")
+System_Ext(cal, "Calendrier universitaire", "Dates limites officielles (modification, abandon).")
 System_Ext(auth, "Authentification UdeM", "Connexion unique (SSO).")
 System_Ext(mail, "Service de courriel", "Acheminement des notifications.")
 
 Rel(etu, bous, "Planifie, envoie des demandes, reçoit des alertes", "HTTPS / navigateur")
 Rel(enc, bous, "Publie des offres, répond aux demandes", "HTTPS / navigateur")
 Rel(org, bous, "Publie des places, sélectionne", "HTTPS / navigateur")
-Rel(cp, bous, "Approuve ou refuse", "HTTPS / navigateur")
+Rel(cp, bous, "Approuve ententes, plans hors norme, offres externes", "HTTPS / navigateur")
 
-Rel(bous, syn, "Lit le dossier (cours réussis, crédits, inscriptions)", "API REST, lecture seule")
+Rel(bous, plan, "À la demande : lit cours, programmes, horaires ; demande éligibilité et conflits (envoie les cours réussis)", "JSON / HTTPS (REST)")
+Rel(bous, syn, "Lit le dossier à l'import (cours réussis, crédits) ; interface supposée", "API REST, lecture seule, avec consentement")
 Rel(etu, syn, "S'inscrit et abandonne officiellement", "HTTPS")
-Rel(bous, rep, "Importe cours, préalables, programmes", "Import planifié, JSON/HTTPS")
-Rel(bous, cal, "Importe les dates limites", "Import planifié, iCal/HTTPS")
-Rel(bous, auth, "Délègue l'authentification", "OIDC / SAML")
+Rel(bous, cal, "Importe les dates limites", "Import planifié, iCal / HTTPS")
+Rel(bous, auth, "Délègue l'authentification", "OIDC")
 Rel(bous, mail, "Envoie rappels et notifications", "SMTP")
 @enduml

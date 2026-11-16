@@ -1,4 +1,5 @@
 @startuml A2-F4-configurer-profil
+' Révision phase 2 : la structure du programme provient de Planifium.
 skinparam defaultFontName DejaVu Sans
 skinparam defaultFontSize 12
 skinparam shadowing false
@@ -26,8 +27,8 @@ else (non)
   |Système Boussole|
   :Propose une saisie manuelle\n(marquée « non vérifiée »);
 endif
-|Répertoire des cours|
-:Fournit la structure du programme\n(blocs, crédits, préalables);
+|Planifium|
+:Fournit la structure du programme\n(segments, blocs, crédits) et la progression\n(POST programs/{id}/progress);
 |Système Boussole|
 :Calcule crédits restants par bloc;
 |Personne étudiante|
