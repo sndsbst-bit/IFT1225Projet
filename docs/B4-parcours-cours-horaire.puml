@@ -1,0 +1,87 @@
+@startuml B4-parcours-cours-horaire
+skinparam defaultFontName DejaVu Sans
+skinparam shadowing false
+skinparam ActivityBackgroundColor #F4F7FB
+skinparam ActivityBorderColor #2F4F6F
+skinparam NoteBackgroundColor #FFF8DC
+title B4 — Parcours d'une donnée : un cours et son horaire (IFT2255, automne 2026)
+
+|Application web|
+start
+:La personne cherche « ift 2255 » pour la session A26;
+:GET /api/offre?texte=ift 2255&session=A26;
+note right: <b>Échange</b> : requête JSON / HTTPS
+
+|Contrôleurs REST|
+:Valider la session (forme A26) ;
+:CatalogueService.rechercher(filtre);
+
+|Catalogue de l'offre|
+:Demander le cours IFT2255 et ses sections A26;
+
+|Adaptateur Planifium|
+:Normaliser le sigle (« ift 2255 » → IFT2255);
+if (Copie datée de moins de 24 h dans le cache ?) then (oui)
+  |Cache des sources|
+  :Relire ReponseEnCache;
+  |Adaptateur Planifium|
+else (non)
+  :GET /courses?courses_sigle=IFT2255&response_level=full\n&include_schedule=true&schedule_semester=A26;
+  note right
+    <b>Échange</b> : JSON brut (CourseFull + SchedulesResponse)
+    credits, requirements, schedules[sections[meetings[periods]]]
+  end note
+  if (Réponse ?) then (200)
+    if (Liste vide ou sigle absent ?) then (oui)
+      :Verdict « Cours introuvable : vérifiez le sigle »\n(Planifium ne valide pas les sigles);
+      stop
+    else (non)
+      |Cache des sources|
+      :Enregistrer le JSON brut\n(clé, source, recupereeLe, updated_at);
+      note right: <b>Préservation</b> : copie datée (PostgreSQL)
+      |Adaptateur Planifium|
+    endif
+  else (500, délai dépassé)
+    |Cache des sources|
+    if (Une copie existe, quel que soit son âge ?) then (oui)
+      :Relire la dernière copie\net marquer « données du <date> »;
+      |Adaptateur Planifium|
+    else (non)
+      :Signaler « offre momentanément indisponible »;
+      stop
+    endif
+  endif
+endif
+:<b>Mapping</b> JSON → Cours, Section, Rencontre, Exigence;
+note right
+  credits 3.0 → double ; « Ma » → DayOfWeek.TUESDAY
+  « 13:30 » / « 15:29 » → LocalTime ; periods → dateDebut / dateFin
+  requirements (all / any / course / manual) → arbre Exigence (Composite)
+  status partial / manual → StatutAnalyse ; nœuds manual → textes à vérifier
+end note
+:<b>Validation</b>;
+note right
+  section synthétique (UNK-…) → capacité inconnue
+  inscrits ≥ capacité → « complet selon les données du … »
+  updated_at → âge des places affiché
+  activités « unscheduled » conservées (sans conflit possible)
+end note
+
+|Catalogue de l'offre|
+:Ajouter le rattachement au programme\n(Programme.compteDansProgramme) ;
+
+|Contrôleurs REST|
+:<b>Présentation</b> : convertir en CoursVue (DTO);
+note right
+  { sigle, titre, crédits, compteDansProgramme,
+    sections : [ { id : A26IFT2255A,
+      horaire : « mardi 13 h 30 – 15 h 30, théorie, en présentiel »,
+      places : « 42 places selon les données du 27 mai 2026 » } ],
+    aVerifier : [ … ], fraicheur : « mise à jour il y a 3 h » }
+end note
+
+|Application web|
+:Afficher la fiche du cours, son horaire\net les mentions « à vérifier » / date des données;
+note right: <b>Présentation</b> : état d'affichage (mémoire du navigateur)
+stop
+@enduml

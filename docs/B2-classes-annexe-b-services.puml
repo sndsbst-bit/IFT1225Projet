@@ -1,0 +1,261 @@
+@startuml B2-classes-annexe-b-services
+skinparam defaultFontName DejaVu Sans
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam linetype polyline
+skinparam nodesep 40
+skinparam ranksep 50
+skinparam class {
+  BackgroundColor #FFFFFF
+  BorderColor #2F4F6F
+  BackgroundColor<<persistant BD>> #DDEFD9
+  BackgroundColor<<copie datée BD>> #FFF1C9
+  BackgroundColor<<service>> #E3ECF7
+  BackgroundColor<<adaptateur>> #F3E1F2
+}
+hide empty members
+title B2 — Annexe 4 : services, règles, adaptateurs, dépôts
+
+package "Contrôleurs REST" {
+  class ControleurPlan <<RestController>> {
+    + ajouter(planId : UUID, sigle : String, sectionId : String) : ResponseEntity<List<Verdict>>
+    + confirmer(planId : UUID, consequenceAcceptee : boolean) : ResponseEntity<List<Verdict>>
+  }
+  class ControleurDemandes <<RestController>> {
+    + envoyer(offreId : UUID, message : String) : ResponseEntity<Demande>
+    + relancer(demandeId : UUID) : ResponseEntity<Demande>
+  }
+}
+package "Service de planification" {
+  class PlanificationService <<service>> {
+    + ajouterCours(planId : UUID, sigle : String, sectionId : String) : List<Verdict>
+    + ajouterOffre(planId : UUID, offreId : UUID) : List<Verdict>
+    + retirerElement(planId : UUID, elementId : UUID) : List<Verdict>
+    + confirmerPlan(planId : UUID, consequenceAcceptee : boolean) : List<Verdict>
+    + projeterIntention(etudiantId : UUID, session : String, sigle : String) : List<Verdict>
+    + calculerProgression(etudiantId : UUID) : Map<String, Double>
+  }
+}
+package "Service des demandes" {
+  class DemandeService <<service>> {
+    + envoyer(etudiantId : UUID, offreId : UUID, message : String) : Demande
+    + relancer(demandeId : UUID) : Demande
+    + rediriger(demandeId : UUID, nouvelleOffreId : UUID) : Demande
+    + repondre(demandeId : UUID, accepte : boolean, motif : String) : Demande
+    + proposerEntente(demandeId : UUID, sujet : String, credits : double) : Entente
+    + deciderEntente(ententeId : UUID, approuve : boolean, motif : String) : Entente
+    + traiterDelais(aujourdhui : LocalDate) : int
+    + fermerDemandesDe(offreId : UUID) : int
+    + indicateur(offreId : UUID) : IndicateurDisponibilite
+  }
+  class IndicateurDisponibilite {
+    - placesRestantes : int
+    - demandesEnAttente : int
+    - delaiHabituelJours : Integer [0..1]
+    - demandesTraiteesBase : int
+    - calculeLe : LocalDateTime
+  }
+}
+package "Catalogue de l'offre" {
+  class CatalogueService <<service>> {
+    + rechercher(filtre : FiltreOffre, profil : ProfilEtudiant) : ResultatRecherche
+    + cours(sigle : String, session : String) : Cours
+    + programme(id : String) : Programme
+    + publierOffre(auteurId : UUID, offre : OffreEncadree) : OffreEncadree
+    + modifierOffre(auteurId : UUID, offre : OffreEncadree) : OffreEncadree
+    + validerOffre(offreId : UUID, approuvee : boolean) : OffreEncadree
+    + retirerOffre(auteurId : UUID, offreId : UUID) : void
+    + soumettreRepere(etudiantId : UUID, cible : String, texte : String) : Repere
+    + modererRepere(repereId : UUID, accepte : boolean) : Repere
+  }
+  class FiltreOffre {
+    - texte : String [0..1]
+    - types : Set<TypeOffre>
+    - domaine : String [0..1]
+    - session : String
+    - admissiblesSeulement : boolean
+  }
+  class ResultatRecherche {
+    - cours : List<Cours>
+    - offres : List<OffreEncadree>
+    - filtresLesPlusRestrictifs : List<String>
+    - donneesDatees : LocalDateTime
+  }
+}
+package "Service de profil" {
+  class ProfilService <<service>> {
+    + lireProfil(etudiantId : UUID) : ProfilEtudiant
+    + importerDossier(etudiantId : UUID, consentement : boolean) : ProfilEtudiant
+    + saisirManuellement(etudiantId : UUID, coursReussis : Set<String>) : ProfilEtudiant
+  }
+}
+package "Moteur de règles" {
+  class MoteurRegles <<service>> {
+    - regles : List<Regle>
+    --
+    + verifier(plan : PlanDeSession, profil : ProfilEtudiant, programme : Programme) : List<Verdict>
+    + {static} estBloquant(verdicts : List<Verdict>) : boolean
+  }
+  interface Regle {
+    + code() : String
+    + evaluer(plan : PlanDeSession, profil : ProfilEtudiant, programme : Programme) : List<Verdict>
+  }
+  class Verdict {
+    - codeRegle : String
+    - statut : StatutVerdict
+    - message : String
+    - aVerifier : List<String>
+    - elementId : UUID [0..1]
+    --
+    + estBloquant() : boolean
+  }
+  enum StatutVerdict {
+    RESPECTEE
+    AVERTISSEMENT
+    BLOQUANTE
+    A_VERIFIER
+    NON_VERIFIABLE
+  }
+  class RegleEligibilite {
+    - source : SourceCatalogue
+    .. EX-03, EX-13 (déléguée à Planifium) ..
+  }
+  class RegleConflitHoraire {
+    - source : SourceCatalogue
+    .. EX-04 (déléguée à Planifium) ..
+  }
+  class ReglePlafondCredits {
+    - plafond : int = 18
+    .. EX-16 ..
+  }
+  class RegleTempsPlein {
+    - seuil : int = 12
+    - consequence : String
+    .. EX-08 ..
+  }
+  class RegleRattachementProgramme {
+    .. EX-05 : utilise Programme.blocsContenant() ..
+  }
+  class RegleCapaciteOffre {
+    .. EX-07 : OffreEncadree.placesRestantes() ..
+  }
+  class RegleEcheance {
+    - echeances : EcheanceRepository
+    - horloge : Clock
+    .. EX-09 ..
+  }
+}
+package "Adaptateur Planifium" {
+  interface SourceCatalogue {
+    + chercherCours(sigles : List<String>, session : String) : List<Cours>
+    + lireProgramme(id : String) : Programme
+    + verifierPlan(session : String, sections : List<String>, reussis : Set<String>, programmeId : String) : List<Verdict>
+  }
+  class PlanifiumAdapter <<adaptateur>> {
+    - urlBase : String
+    - delaiMaxMs : int
+    - cache : CacheSources
+    --
+    + chercherCours(sigles : List<String>, session : String) : List<Cours>
+    + lireProgramme(id : String) : Programme
+    + verifierPlan(session : String, sections : List<String>, reussis : Set<String>, programmeId : String) : List<Verdict>
+    - versVerdict(statut : String, aVerifier : List<String>) : Verdict
+    - verifierSiglesInconnus(demandes : List<String>, recus : List<String>) : List<String>
+  }
+}
+package "Cache des sources" {
+  class CacheSources <<service>> {
+    + enregistrer(cle : String, source : String, json : String) : void
+    + relire(cle : String) : Optional<ReponseEnCache>
+  }
+}
+package "Adaptateur Synchro" {
+  interface SourceDossier {
+    + lireDossier(matricule : String) : ProfilEtudiant
+  }
+  class SynchroAdapter <<adaptateur>> {
+    - urlBase : String
+    --
+    + lireDossier(matricule : String) : ProfilEtudiant
+  }
+}
+package "Adaptateur Calendrier" {
+  class CalendrierAdapter <<adaptateur>> {
+    - urlIcal : String
+    --
+    + lireEcheances(session : String) : List<Echeance>
+  }
+}
+package "Gestionnaire des échéances" {
+  class GestionnaireEcheances <<service>> {
+    - horloge : Clock
+    --
+    + executerQuotidien() : void
+    + importerCalendrier() : void
+    + rafraichirOffre(session : String) : void
+  }
+}
+package "Notificateur" {
+  class Notificateur <<service>> {
+    + envoyer(destinataire : String, sujet : String, corps : String) : void
+  }
+}
+package "Dépôts" {
+  interface PlanRepository {
+    + findByEtudiantIdAndSession(id : UUID, session : String) : Optional<PlanDeSession>
+  }
+  interface DemandeRepository {
+    + findByEtatAndEcheanceReponseBefore(etat : EtatDemande, d : LocalDate) : List<Demande>
+  }
+  interface EcheanceRepository {
+    + findBySession(session : String) : List<Echeance>
+  }
+}
+ControleurPlan --> PlanificationService
+ControleurDemandes --> DemandeService
+PlanificationService --> MoteurRegles : fait vérifier >
+PlanificationService --> CatalogueService
+PlanificationService --> ProfilService
+PlanificationService --> PlanRepository
+DemandeService --> MoteurRegles : admissibilité >
+DemandeService --> DemandeRepository
+DemandeService --> Notificateur
+DemandeService ..> IndicateurDisponibilite : calcule >
+CatalogueService --> SourceCatalogue
+CatalogueService --> DemandeService : ferme les demandes d'une offre retirée >
+CatalogueService ..> FiltreOffre
+CatalogueService ..> ResultatRecherche : produit >
+ProfilService --> SourceDossier
+MoteurRegles "1" o-- "1..*" Regle : applique >
+Regle ..> Verdict : produit >
+Verdict --> StatutVerdict
+Regle <|.. RegleEligibilite
+Regle <|.. RegleConflitHoraire
+Regle <|.. ReglePlafondCredits
+Regle <|.. RegleTempsPlein
+Regle <|.. RegleRattachementProgramme
+Regle <|.. RegleCapaciteOffre
+Regle <|.. RegleEcheance
+RegleEligibilite --> SourceCatalogue
+RegleConflitHoraire --> SourceCatalogue
+RegleEcheance --> EcheanceRepository
+SourceCatalogue <|.. PlanifiumAdapter
+PlanifiumAdapter --> CacheSources : copie datée >
+SourceDossier <|.. SynchroAdapter
+GestionnaireEcheances --> DemandeService : délais échus >
+GestionnaireEcheances --> CalendrierAdapter
+GestionnaireEcheances --> SourceCatalogue : rafraîchit >
+GestionnaireEcheances --> Notificateur
+GestionnaireEcheances --> EcheanceRepository
+
+
+legend right
+  <back:#DDEFD9> «persistant BD» </back> conservé d'une visite à l'autre, serveur (PostgreSQL)
+  <back:#FFF1C9> «copie datée BD» </back> copie datée d'une réponse Planifium, serveur (PostgreSQL)
+  <back:#E3ECF7> «service» </back> / <back:#F3E1F2> «adaptateur» </back> : non conservés (logique)
+  Sans couleur : objets de calcul ou de présentation, non conservés
+  Chaque cadre porte le nom du composant B1 qui héberge ses classes.
+endlegend
+
+@enduml
