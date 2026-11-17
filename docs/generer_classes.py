@@ -1,6 +1,4 @@
 # Usage : python3 generer_classes.py .   (depuis docs/diagrammes/phase2/), puis java -jar plantuml.jar -tpng B2-*.puml
-# Génère les diagrammes de classes B2 à partir d'une seule définition (cohérence garantie
-# entre la vue principale et les annexes).
 import sys, os
 
 OUT = sys.argv[1]
