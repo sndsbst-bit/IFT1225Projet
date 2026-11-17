@@ -146,8 +146,8 @@ Toutes les personnes de l'équipe ont relu le rapport. En phase 1, les commits o
 
 ## 8. Outils d'assistance logicielle
 
-| Outil | Utilisé pour | Ce que l'équipe a fait |
-| --- | --- | --- |
-| Claude (Anthropic), phase 1 | Explication de l'énoncé ; analyse comparative des trois sessions exportées ; première version des simplifications, des exigences, des fiches de cas d'utilisation et du rapport ; sources PlantUML des diagrammes A1, A2 et A3 ; première version du code du prototype et des tests. | Relecture et compréhension du code du prototype, vérification des observations dans le prototype, vérification des règles de l'Université, relecture et correction de l'ensemble. |
-| Claude (Anthropic), phase 2 | Explication de l'énoncé et du guide Planifium ; des révisions de la phase 1, du rapport de phase 2 et de ce README. | |
-| PlantUML | Rendu des diagrammes (cas d'utilisation, activités, C4-PlantUML, classes). | Sources versées dans `docs/diagrammes/`. |
+| Outil | Utilisé pour | 
+| --- | --- | 
+| Claude (Anthropic), phase 1 | Explication de l'énoncé ; analyse comparative des trois sessions exportées ; première version des simplifications, des exigences, des fiches de cas d'utilisation et du rapport ; sources PlantUML des diagrammes A1, A2 et A3 ; première version du code du prototype et des tests. |
+| Claude (Anthropic), phase 2 | Explication de l'énoncé et du guide Planifium ; des révisions de la phase 1, du rapport de phase 2 et de ce README. | 
+| PlantUML | Rendu des diagrammes (cas d'utilisation, activités, C4-PlantUML, classes). | 
