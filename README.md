@@ -17,13 +17,13 @@ La phase 2 décrit comment Boussole sera construite. Les cours, programmes et ho
 | Artefact | Contenu | Où |
 | --- | --- | --- |
 | Révisions de la phase 1 | 16 révisions, dont 6 qui répondent au retour de la correctrice | Rapport, section 2 ; `docs/diagrammes/` (A1, A2-F2, A2-F4, A3) |
-| B1 — C4 niveau 3 | Les 13 composants de l'API applicative | `docs/diagrammes/phase2/B1-*` |
-| B2 — Diagramme de classes | Vue principale de 15 classes, annexes complètes (67 classes et énumérations) | `docs/diagrammes/phase2/B2-*` |
-| B3 — Spécifications de tests || Rapport, section 5 |
-| B4 — Modèle de données | Classification, sources, conservation, sauvegarde, deux parcours de données | Rapport, section 6 ; `docs/diagrammes/phase2/B4-*` |
+| B1 — C4 niveau 3 | Les 13 composants de l'API applicative | `docs/B1-*` |
+| B2 — Diagramme de classes | Vue principale de 15 classes, annexes complètes (67 classes et énumérations) | `docs/B2-*` |
+| B3 — Spécifications de tests | 17 critères d'acceptation et 25 cas de test | Rapport, section 5 ; `docs/rapport/B3-specifications-tests.md` |
+| B4 — Modèle de données | Classification, sources, conservation, sauvegarde, deux parcours de données | Rapport, section 6 ; `docs/B4-*` |
 | Traçabilité | Exigences → cas d'utilisation → flux → composants → classes → tests | Rapport, section 7 |
 
-Le rapport complet est `docs/rapport/Rapport_Phase2_IFT2255.pdf`.
+Le rapport complet est `docs/rapport/Rapport — Phase 2.docx`.
 
 ## 3. État d'avancement du prototype
 
@@ -103,10 +103,10 @@ Il faut Java et `plantuml.jar`.
 cd docs/diagrammes
 java -jar plantuml.jar -tpng *.puml
 
-# Diagrammes de la phase 2
-cd phase2
+# Diagrammes de la phase 2 (B1, B2, B4)
+cd ..
 python3 generer_classes.py .      # régénère les trois diagrammes de classes B2
-java -jar ../plantuml.jar -tpng *.puml
+java -jar plantuml.jar -tpng B*.puml
 ```
 
 `generer_classes.py` produit les diagrammes de classes à partir d'une seule définition et vérifie que chaque classe appartient à un composant du C4 niveau 3.
@@ -128,9 +128,10 @@ java -jar ../plantuml.jar -tpng *.puml
 ├── tests/
 │   └── regles.test.mjs   # tests unitaires (node --test)
 └── docs/
-    ├── rapport/          # Rapport_Phase1_IFT2255_1.pdf, Rapport_Phase2_IFT2255.pdf
+    ├── rapport/          # Rapport_Phase1_IFT2255_1.pdf, Rapport — Phase 2.docx, B3-specifications-tests.md
     ├── diagrammes/       # A1, A2, A3 (phase 1, révisés en phase 2) : .puml, .png, .svg
-    │   └── phase2/       # B1, B2, B4 et generer_classes.py
+    ├── B1-*, B2-*, B4-*  # diagrammes de la phase 2 : .puml, .png, .svg
+    ├── generer_classes.py
     └── traces/           # sessions exportées du prototype de référence
 ```
 
