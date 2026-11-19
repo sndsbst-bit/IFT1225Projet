@@ -139,8 +139,8 @@ java -jar plantuml.jar -tpng B*.puml
 
 | Membre | Matricule | Phase 2 |
 | --- | --- | --- |
-| Soundous Bestam | 20304594 | Révisions des artefacts de la phase 1 (A1, A2, A3), rapport |
-| Ahmed Nassim Es-Snoussi | 20320830 |  |
+| Soundous Bestam | 20304594 | Révisions des artefacts de la phase 1 (A1, A2, A3), B4 et rapport |
+| Ahmed Nassim Es-Snoussi | 20320830 | Modele C4 (B1), Diagramme de classe (B2) et rapport |
 | Victorio Nascimento | 20299568 | Spécifications de tests (B3), complétion du rapport (intégration de B3, matrice de traçabilité) |
 
 Toutes les personnes de l'équipe ont relu le rapport. En phase 1, les commits ont été poussés depuis le compte de Soundous Bestam, avec les autres membres en co-auteurs. En phase 2, chaque membre a téléversé sa partie depuis son propre compte, sur la branche `phase2`, fusionnée dans `main` par une pull request relue par l'équipe.
