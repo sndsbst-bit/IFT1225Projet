@@ -1,0 +1,74 @@
+@startuml B4-parcours-plan-session
+skinparam defaultFontName DejaVu Sans
+skinparam shadowing false
+skinparam ActivityBackgroundColor #F4F7FB
+skinparam ActivityBorderColor #2F4F6F
+skinparam NoteBackgroundColor #FFF8DC
+title B4 — Parcours d'une donnée : le plan de session (ajout de IFT2255, section A26IFT2255A)
+
+|Application web|
+start
+:Clic « Ajouter » sur la section A26IFT2255A;
+:POST /api/plans/{id}/elements { sigle, sectionId };
+note right: <b>Échange</b> : JSON / HTTPS + jeton OIDC
+
+|Contrôleurs REST|
+:Vérifier l'identité et que le plan appartient à la personne;
+:PlanificationService.ajouterCours(planId, sigle, sectionId);
+
+|Service de planification|
+:Charger PlanDeSession et ProfilEtudiant (Dépôts);
+note right
+  <b>Préservation</b> : lignes PostgreSQL → objets
+  coursReussis, provenance (importée / saisie)
+end note
+:Construire le plan candidat\n(copie du plan + ElementPlan PREVU);
+
+|Moteur de règles|
+:Règles locales :\nplafond (≤ 18), temps plein (≥ 12),\nrattachement au programme, date limite de modification;
+:Règles déléguées : éligibilité et conflits;
+
+|Adaptateur Planifium|
+:POST /courseplan/check\n{ semester : A26, courses, sections, completed_courses, program_id };
+note right: <b>Échange</b> : la situation est renvoyée à chaque requête (Planifium ne conserve rien)
+if (Planifium répond ?) then (oui)
+  :<b>Mapping</b> réponse → Verdict;
+  note right
+    eligibility yes → RESPECTEE
+    eligibility no → BLOQUANTE (missing_courses nommés)
+    eligibility unknown → A_VERIFIER (to_verify affichés)
+    conflicts → BLOQUANTE ; warnings, unselected → AVERTISSEMENT
+    issues (déjà réussi, doublon, exclusion) → BLOQUANTE
+  end note
+else (non)
+  :Verdicts NON_VERIFIABLE\n(jamais « respectée »);
+endif
+
+|Moteur de règles|
+if (Dossier saisi manuellement ?) then (oui)
+  :Ajouter la mention « dossier non vérifié »\naux verdicts de préalables;
+else (non)
+endif
+:Agréger les verdicts;
+
+|Service de planification|
+if (Au moins un verdict BLOQUANTE ?) then (oui)
+  :Plan inchangé;
+else (non)
+  :plan.ajouter(element) ;\nrecalculer crédits, temps plein, progression par bloc;
+  :Enregistrer le plan et l'historique\n(transaction, Dépôts → PostgreSQL);
+  note right: <b>Préservation</b> : PlanDeSession, ElementPlan, journal
+endif
+
+|Contrôleurs REST|
+:<b>Présentation</b> : convertir en PlanVue (DTO);
+note right
+  { elements, totalCredits : 15, tempsPlein : true,
+    progression : { obligatoires : 33/51, options : 6/30 … },
+    verdicts : [ { statut, message, aVerifier } ] }
+end note
+
+|Application web|
+:Afficher le plan, l'encadré de temps plein\net les verdicts (refus nommé, avertissement, à vérifier);
+stop
+@enduml

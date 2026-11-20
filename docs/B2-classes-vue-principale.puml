@@ -1,0 +1,225 @@
+@startuml B2-classes-vue-principale
+skinparam defaultFontName DejaVu Sans
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam linetype polyline
+skinparam nodesep 40
+skinparam ranksep 50
+skinparam class {
+  BackgroundColor #FFFFFF
+  BorderColor #2F4F6F
+  BackgroundColor<<persistant BD>> #DDEFD9
+  BackgroundColor<<copie datée BD>> #FFF1C9
+  BackgroundColor<<service>> #E3ECF7
+  BackgroundColor<<adaptateur>> #F3E1F2
+}
+hide empty members
+title B2 — Diagramme de classes : vue principale (15 classes)
+
+package "Service de profil" {
+  class ProfilEtudiant <<persistant BD>> {
+    - id : UUID
+    - matricule : String
+    - programmeId : String
+    - parcours : String [0..1]
+    - coursReussis : Set<String>
+    - creditsAcquis : double
+    - moyenne : Double [0..1]
+    - provenance : Provenance
+    - importeLe : LocalDateTime [0..1]
+    --
+    + estVerifie() : boolean
+    + aReussi(sigle : String) : boolean
+  }
+}
+package "Catalogue de l'offre" {
+  class Programme <<copie datée BD>> {
+    - id : String
+    - nom : String
+    - recupereLe : LocalDateTime
+    --
+    + blocsContenant(sigle : String) : List<Bloc>
+    + compteDansProgramme(sigle : String) : boolean
+  }
+  class Bloc <<copie datée BD>> {
+    - id : String
+    - type : TypeBloc
+    - creditsMin : int
+    - creditsMax : int
+    - sigles : List<String>
+    --
+    + accepte(sigle : String) : boolean
+    + creditsComptes(reussis : List<Cours>) : double
+    + estSatisfait(reussis : List<Cours>) : boolean
+  }
+  class Cours <<copie datée BD>> {
+    - sigle : String
+    - titre : String
+    - credits : double
+    - saisonsHabituelles : Set<Saison>
+    - statutAnalyse : StatutAnalyse
+    - recupereLe : LocalDateTime
+    --
+    + sectionsPour(session : String) : List<Section>
+    + estHabituellementOffertA(saison : Saison) : boolean
+  }
+  class Section <<copie datée BD>> {
+    - id : String
+    - session : String
+    - capacite : Integer [0..1]
+    - inscrits : Integer [0..1]
+    - synthetique : boolean
+    - misAJourLe : LocalDate
+    --
+    + placesRestantes() : Integer [0..1]
+    + chevauche(autre : Section) : boolean
+  }
+  abstract class Exigence <<copie datée BD>> {
+    + {abstract} siglesMentionnes() : Set<String>
+    + {abstract} textesAVerifier() : List<String>
+  }
+  class OffreEncadree <<persistant BD>> {
+    - id : UUID
+    - type : TypeOffre
+    - titre : String
+    - domaine : String
+    - credits : double
+    - capacite : int
+    - creditsMinimum : int
+    - delaiReponseJours : int
+    - etat : EtatOffre
+    - responsableId : UUID
+    --
+    + placesRestantes() : int
+    + estAdmissible(profil : ProfilEtudiant) : boolean
+    + peutEtreModifieePar(personneId : UUID) : boolean
+  }
+}
+package "Service de planification" {
+  class PlanDeSession <<persistant BD>> {
+    - id : UUID
+    - session : String
+    - statut : StatutPlan
+    - consequenceTempsPartielAcceptee : boolean
+    --
+    + ajouter(element : ElementPlan) : void
+    + retirer(elementId : UUID) : void
+    + totalCredits() : double
+    + sectionsChoisies() : List<String>
+  }
+  class ElementPlan <<persistant BD>> {
+    - id : UUID
+    - etat : EtatElement
+    - credits : double
+    - ajouteLe : LocalDateTime
+    --
+    + estCredite() : boolean
+  }
+  class PlanificationService <<service>> {
+    + ajouterCours(planId : UUID, sigle : String, sectionId : String) : List<Verdict>
+    + ajouterOffre(planId : UUID, offreId : UUID) : List<Verdict>
+    + retirerElement(planId : UUID, elementId : UUID) : List<Verdict>
+    + confirmerPlan(planId : UUID, consequenceAcceptee : boolean) : List<Verdict>
+    + projeterIntention(etudiantId : UUID, session : String, sigle : String) : List<Verdict>
+    + calculerProgression(etudiantId : UUID) : Map<String, Double>
+  }
+}
+package "Service des demandes" {
+  class Demande <<persistant BD>> {
+    - id : UUID
+    - etat : EtatDemande
+    - message : String
+    - envoyeeLe : LocalDate
+    - echeanceReponse : LocalDate
+    - relanceUtilisee : boolean
+    - motifRefus : String [0..1]
+    --
+    + relancer(aujourdhui : LocalDate, prolongationJours : int) : void
+    + expirer(aujourdhui : LocalDate) : boolean
+    + joursRestants(aujourdhui : LocalDate) : long
+  }
+}
+package "Moteur de règles" {
+  class MoteurRegles <<service>> {
+    - regles : List<Regle>
+    --
+    + verifier(plan : PlanDeSession, profil : ProfilEtudiant, programme : Programme) : List<Verdict>
+    + {static} estBloquant(verdicts : List<Verdict>) : boolean
+  }
+  interface Regle {
+    + code() : String
+    + evaluer(plan : PlanDeSession, profil : ProfilEtudiant, programme : Programme) : List<Verdict>
+  }
+  class Verdict {
+    - codeRegle : String
+    - statut : StatutVerdict
+    - message : String
+    - aVerifier : List<String>
+    - elementId : UUID [0..1]
+    --
+    + estBloquant() : boolean
+  }
+}
+package "Adaptateur Planifium" {
+  class PlanifiumAdapter <<adaptateur>> {
+    - urlBase : String
+    - delaiMaxMs : int
+    - cache : CacheSources
+    --
+    + chercherCours(sigles : List<String>, session : String) : List<Cours>
+    + lireProgramme(id : String) : Programme
+    + verifierPlan(session : String, sections : List<String>, reussis : Set<String>, programmeId : String) : List<Verdict>
+    - versVerdict(statut : String, aVerifier : List<String>) : Verdict
+    - verifierSiglesInconnus(demandes : List<String>, recus : List<String>) : List<String>
+  }
+}
+ProfilEtudiant "1" -- "0..*" PlanDeSession : planifie >
+ProfilEtudiant "0..*" --> "1" Programme : inscrit à >
+ProfilEtudiant "1" -- "0..*" Demande : envoie >
+Programme "1" *-- "1..*" Bloc : structure (par segments)
+Bloc "0..*" o-- "0..*" Cours : liste >
+Cours "1" *-- "0..*" Section : offerte en >
+Cours "1" *-- "0..1" Exigence : préalables >
+PlanDeSession "1" *-- "0..*" ElementPlan : contient >
+ElementPlan "0..*" --> "0..1" Cours : {xor}
+ElementPlan "0..*" --> "0..1" Section : section choisie >
+ElementPlan "0..*" --> "0..1" OffreEncadree : {xor}
+Demande "0..*" --> "1" OffreEncadree : vise >
+Demande "0..1" -- "0..1" ElementPlan : réserve >
+PlanificationService --> MoteurRegles : fait vérifier >
+PlanificationService ..> PlanDeSession : modifie >
+MoteurRegles "1" o-- "1..*" Regle : applique >
+Regle ..> Verdict : produit >
+Regle ..> PlanifiumAdapter : délègue préalables\net conflits >
+PlanifiumAdapter ..> Cours : crée (mapping) >
+PlanifiumAdapter ..> Programme : crée (mapping) >
+PlanifiumAdapter ..> Verdict : traduit yes/no/unknown >
+
+note as NRegles
+  <b>Où vivent les règles du programme</b>
+  Plafond de crédits : ReglePlafondCredits (plafond = 18)
+  Temps plein : RegleTempsPlein (seuil = 12)
+  Préalables : arbre Exigence (donnée) + RegleEligibilite,
+  qui délègue l'évaluation à Planifium (logique)
+  Blocs : Bloc.accepte(), Bloc.creditsComptes() (donnée)
+  + RegleRattachementProgramme (logique)
+  Détail des 7 règles : annexe 4
+end note
+NRegles .. Regle
+note bottom of Exigence
+  Composite : ExigenceCours, ExigenceToutes,
+  ExigenceUneParmi, ExigenceAuMoins,
+  ExigenceCredits, ExigenceManuelle (annexe 3)
+end note
+
+
+legend right
+  <back:#DDEFD9> «persistant BD» </back> conservé d'une visite à l'autre, serveur (PostgreSQL)
+  <back:#FFF1C9> «copie datée BD» </back> copie datée d'une réponse Planifium, serveur (PostgreSQL)
+  <back:#E3ECF7> «service» </back> / <back:#F3E1F2> «adaptateur» </back> : non conservés (logique)
+  Sans couleur : objets de calcul ou de présentation, non conservés
+  Chaque cadre porte le nom du composant B1 qui héberge ses classes.
+endlegend
+
+@enduml

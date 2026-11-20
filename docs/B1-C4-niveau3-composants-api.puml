@@ -1,0 +1,76 @@
+@startuml B1-C4-niveau3-composants-api
+!include <C4/C4_Component>
+skinparam defaultFontName DejaVu Sans
+skinparam wrapWidth 220
+LAYOUT_TOP_DOWN()
+title Niveau 3 — Composants de l'API applicative (Java 21 / Spring Boot)
+
+Container(spa, "Application web", "React + TypeScript", "Interface de Boussole")
+ContainerDb(bd, "Base de données", "PostgreSQL", "Objets conservés et copies datées")
+
+System_Ext(plan, "Planifium", "Cours, exigences, programmes, horaires")
+System_Ext(syn, "Synchro", "Dossier étudiant")
+System_Ext(cal, "Calendrier universitaire", "Dates limites")
+System_Ext(auth, "Authentification UdeM", "SSO")
+System_Ext(mail, "Service de courriel", "SMTP")
+
+Container_Boundary(api, "API applicative") {
+  Component(ctrl, "Contrôleurs REST", "Spring Web + Spring Security", "Expose les opérations de Boussole en JSON et vérifie l'identité de l'appelant.")
+
+  Component(planif, "Service de planification", "Spring @Service", "Construit et modifie les plans de session et multi-sessions en faisant vérifier chaque changement.")
+  Component(dem, "Service des demandes", "Spring @Service", "Fait avancer chaque demande encadrée dans son cycle de vie, de l'envoi à l'approbation ou l'expiration.")
+  Component(cat, "Catalogue de l'offre", "Spring @Service", "Publie les offres encadrées et les repères, et fournit l'offre unifiée et filtrable, cours de Planifium compris.")
+  Component(prof, "Service de profil", "Spring @Service", "Tient le profil et le dossier de la personne en conservant la provenance de chaque donnée.")
+
+  Component(regles, "Moteur de règles", "Module Java", "Évalue un plan contre toutes les règles du programme et produit un verdict expliqué par règle.")
+  Component(eche, "Gestionnaire des échéances", "Spring @Scheduled", "Déclenche à heure fixe les rappels, expirations et rafraîchissements dus.")
+
+  Component(aplan, "Adaptateur Planifium", "Client HTTP + mapping", "Traduit les réponses de Planifium dans le modèle de Boussole et isole le système de leurs défauts et pannes.")
+  Component(cache, "Cache des sources", "Module Java", "Conserve une copie datée des réponses externes et la sert quand la source ne répond pas.")
+  Component(asyn, "Adaptateur Synchro", "Client HTTP + mapping", "Importe le dossier officiel, avec consentement, sous forme de dossier vérifié.")
+  Component(acal, "Adaptateur Calendrier", "Lecteur iCal", "Convertit le calendrier universitaire en échéances avec leur conséquence.")
+  Component(notif, "Notificateur", "Spring Mail", "Envoie les rappels et notifications par courriel.")
+  Component(repo, "Dépôts", "Spring Data JPA", "Lit et écrit les objets conservés dans la base de données.")
+}
+
+' --- échanges avec l'extérieur du conteneur (repris du niveau 2) ---
+Rel(spa, ctrl, "Requêtes plan, offre, demandes ; reçoit verdicts", "JSON / HTTPS (REST)")
+Rel(ctrl, auth, "Valide le jeton d'accès", "OIDC / JWT")
+Rel(repo, bd, "Lit et écrit", "SQL / JDBC")
+Rel(aplan, plan, "GET courses, programs, schedules ; POST courseplan/check, programs/{id}/progress (à la demande, copie gardée 24 h)", "JSON / HTTPS")
+Rel(asyn, syn, "Lit cours réussis et crédits à l'import, avec consentement (interface supposée)", "API REST, lecture seule")
+Rel(acal, cal, "Télécharge les dates limites", "iCal / HTTPS")
+Rel(notif, mail, "Envoie un courriel", "SMTP")
+
+' --- relations internes ---
+Rel(ctrl, planif, "Ajouter, retirer, confirmer, projeter", "appel de méthode")
+Rel(ctrl, cat, "Rechercher l'offre ; publier, valider, retirer une offre ; soumettre, modérer un repère", "appel de méthode")
+Rel(ctrl, dem, "Envoyer, relancer, rediriger, répondre, approuver", "appel de méthode")
+Rel(ctrl, prof, "Configurer le profil, consentir à l'import", "appel de méthode")
+
+Rel(planif, prof, "Demande le dossier (cours réussis, provenance)", "appel de méthode")
+Rel(planif, cat, "Demande cours, sections et offres de la session", "appel de méthode")
+Rel(planif, regles, "Plan candidat + contexte -> liste de verdicts", "appel de méthode")
+Rel(planif, repo, "Enregistre le plan et l'historique", "appel de méthode")
+
+Rel(dem, regles, "Vérifie l'admissibilité et la capacité", "appel de méthode")
+Rel(dem, repo, "Lit et écrit demandes et ententes", "appel de méthode")
+Rel(dem, notif, "Demande l'envoi d'une notification", "appel de méthode")
+
+Rel(cat, aplan, "Demande cours, programmes, horaires", "appel de méthode")
+Rel(cat, repo, "Lit et écrit offres encadrées et repères", "appel de méthode")
+Rel(cat, dem, "Ferme les demandes d'une offre retirée", "appel de méthode")
+Rel(regles, aplan, "Cours prévus + sections + cours réussis -> éligibilité, conflits (yes/no/unknown)", "appel de méthode")
+
+Rel(prof, asyn, "Demande l'import du dossier", "appel de méthode")
+Rel(prof, repo, "Lit et écrit profil et dossier", "appel de méthode")
+
+Rel(aplan, cache, "Enregistre ou relit une réponse datée", "appel de méthode")
+Rel(cache, repo, "Persiste les copies brutes horodatées", "appel de méthode")
+
+Rel(eche, dem, "Signale les délais échus (rappel J-2, expiration)", "appel de méthode")
+Rel(eche, notif, "Demande les rappels J-7 / J-2 des échéances", "appel de méthode")
+Rel(eche, acal, "Lance l'import hebdomadaire", "appel de méthode")
+Rel(eche, aplan, "Lance le rafraîchissement nocturne de l'offre", "appel de méthode")
+Rel(eche, repo, "Lit les échéances, écrit les dates importées", "appel de méthode")
+@enduml

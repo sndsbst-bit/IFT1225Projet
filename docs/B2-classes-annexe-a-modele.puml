@@ -1,0 +1,348 @@
+@startuml B2-classes-annexe-a-modele
+skinparam defaultFontName DejaVu Sans
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam linetype polyline
+skinparam nodesep 40
+skinparam ranksep 50
+skinparam class {
+  BackgroundColor #FFFFFF
+  BorderColor #2F4F6F
+  BackgroundColor<<persistant BD>> #DDEFD9
+  BackgroundColor<<copie datée BD>> #FFF1C9
+  BackgroundColor<<service>> #E3ECF7
+  BackgroundColor<<adaptateur>> #F3E1F2
+}
+hide empty members
+title B2 — Annexe 3 : modèle complet (catalogue, plan, demandes, échéances, cache)
+
+package "Service de profil" {
+  class ProfilEtudiant <<persistant BD>> {
+    - id : UUID
+    - matricule : String
+    - programmeId : String
+    - parcours : String [0..1]
+    - coursReussis : Set<String>
+    - creditsAcquis : double
+    - moyenne : Double [0..1]
+    - provenance : Provenance
+    - importeLe : LocalDateTime [0..1]
+    --
+    + estVerifie() : boolean
+    + aReussi(sigle : String) : boolean
+  }
+  enum Provenance {
+    IMPORTEE_SYNCHRO
+    SAISIE_MANUELLE
+  }
+}
+package "Catalogue de l'offre" {
+  class Programme <<copie datée BD>> {
+    - id : String
+    - nom : String
+    - recupereLe : LocalDateTime
+    --
+    + blocsContenant(sigle : String) : List<Bloc>
+    + compteDansProgramme(sigle : String) : boolean
+  }
+  class Segment <<copie datée BD>> {
+    - id : String
+    - nom : String
+  }
+  class Parcours <<copie datée BD>> {
+    - titre : String
+    - type : String
+    --
+    + inclut(segmentId : String) : boolean
+  }
+  class Bloc <<copie datée BD>> {
+    - id : String
+    - type : TypeBloc
+    - creditsMin : int
+    - creditsMax : int
+    - sigles : List<String>
+    --
+    + accepte(sigle : String) : boolean
+    + creditsComptes(reussis : List<Cours>) : double
+    + estSatisfait(reussis : List<Cours>) : boolean
+  }
+  enum TypeBloc {
+    OBLIGATOIRE
+    OPTION
+    CHOIX
+    --
+    + {static} depuis(texte : String) : TypeBloc
+  }
+  class Cours <<copie datée BD>> {
+    - sigle : String
+    - titre : String
+    - credits : double
+    - saisonsHabituelles : Set<Saison>
+    - statutAnalyse : StatutAnalyse
+    - recupereLe : LocalDateTime
+    --
+    + sectionsPour(session : String) : List<Section>
+    + estHabituellementOffertA(saison : Saison) : boolean
+  }
+  enum StatutAnalyse {
+    EXACT
+    PARTIEL
+    MANUEL
+    AUCUNE
+  }
+  enum Saison {
+    AUTOMNE
+    HIVER
+    ETE
+  }
+  class Section <<copie datée BD>> {
+    - id : String
+    - session : String
+    - capacite : Integer [0..1]
+    - inscrits : Integer [0..1]
+    - synthetique : boolean
+    - misAJourLe : LocalDate
+    --
+    + placesRestantes() : Integer [0..1]
+    + chevauche(autre : Section) : boolean
+  }
+  class Rencontre <<copie datée BD>> {
+    - type : String
+    - jour : DayOfWeek
+    - debut : LocalTime
+    - fin : LocalTime
+    - mode : String
+    - dateDebut : LocalDate
+    - dateFin : LocalDate
+    --
+    + chevauche(autre : Rencontre) : boolean
+  }
+  abstract class Exigence <<copie datée BD>> {
+    + {abstract} siglesMentionnes() : Set<String>
+    + {abstract} textesAVerifier() : List<String>
+  }
+  class ExigenceCours <<copie datée BD>> {
+    - sigle : String
+  }
+  abstract class ExigenceCombinee <<copie datée BD>> {
+  }
+  class ExigenceToutes <<copie datée BD>> {
+  }
+  class ExigenceUneParmi <<copie datée BD>> {
+  }
+  class ExigenceAuMoins <<copie datée BD>> {
+    - nombre : int
+  }
+  class ExigenceCredits <<copie datée BD>> {
+    - min : int
+    - max : Integer [0..1]
+    - portee : String
+  }
+  class ExigenceManuelle <<copie datée BD>> {
+    - texte : String
+  }
+  class OffreEncadree <<persistant BD>> {
+    - id : UUID
+    - type : TypeOffre
+    - titre : String
+    - domaine : String
+    - credits : double
+    - capacite : int
+    - creditsMinimum : int
+    - delaiReponseJours : int
+    - etat : EtatOffre
+    - responsableId : UUID
+    --
+    + placesRestantes() : int
+    + estAdmissible(profil : ProfilEtudiant) : boolean
+    + peutEtreModifieePar(personneId : UUID) : boolean
+  }
+  enum TypeOffre {
+    PROJET_SUPERVISE
+    POSTE_LABO
+    STAGE
+    SEMINAIRE
+    CONCOURS
+    ACTIVITE
+  }
+  enum EtatOffre {
+    BROUILLON
+    EN_VALIDATION
+    PUBLIEE
+    RETIREE
+  }
+  class Repere <<persistant BD>> {
+    - id : UUID
+    - cible : String
+    - texte : String
+    - statut : StatutRepere
+    - auteurId : UUID
+    - soumisLe : LocalDate
+    - expireLe : LocalDate
+    --
+    + estVisible(aujourdhui : LocalDate) : boolean
+  }
+  enum StatutRepere {
+    EN_MODERATION
+    PUBLIE
+    REFUSE
+  }
+}
+package "Service de planification" {
+  class PlanDeSession <<persistant BD>> {
+    - id : UUID
+    - session : String
+    - statut : StatutPlan
+    - consequenceTempsPartielAcceptee : boolean
+    --
+    + ajouter(element : ElementPlan) : void
+    + retirer(elementId : UUID) : void
+    + totalCredits() : double
+    + sectionsChoisies() : List<String>
+  }
+  enum StatutPlan {
+    BROUILLON
+    CONFIRME
+  }
+  class ElementPlan <<persistant BD>> {
+    - id : UUID
+    - etat : EtatElement
+    - credits : double
+    - ajouteLe : LocalDateTime
+    --
+    + estCredite() : boolean
+  }
+  enum EtatElement {
+    PREVU
+    DEMANDE
+    CONFIRME
+    INTENTION
+  }
+}
+package "Service des demandes" {
+  class Demande <<persistant BD>> {
+    - id : UUID
+    - etat : EtatDemande
+    - message : String
+    - envoyeeLe : LocalDate
+    - echeanceReponse : LocalDate
+    - relanceUtilisee : boolean
+    - motifRefus : String [0..1]
+    --
+    + relancer(aujourdhui : LocalDate, prolongationJours : int) : void
+    + expirer(aujourdhui : LocalDate) : boolean
+    + joursRestants(aujourdhui : LocalDate) : long
+  }
+  enum EtatDemande {
+    ENVOYEE
+    RELANCEE
+    ACCEPTEE
+    REFUSEE
+    RETIREE
+    EXPIREE
+  }
+  class Entente <<persistant BD>> {
+    - id : UUID
+    - sujet : String
+    - credits : double
+    - etat : EtatEntente
+    - motifRefus : String [0..1]
+    --
+    + approuver(approuve : boolean, motif : String) : void
+  }
+  enum EtatEntente {
+    PROPOSEE
+    SOUMISE_CONSEIL
+    APPROUVEE
+    REFUSEE
+  }
+}
+package "Gestionnaire des échéances" {
+  class Echeance <<persistant BD>> {
+    - id : UUID
+    - type : TypeEcheance
+    - session : String
+    - date : LocalDate
+    - consequence : String
+    --
+    + estDepassee(aujourdhui : LocalDate) : boolean
+    + joursAvant(aujourdhui : LocalDate) : long
+  }
+  enum TypeEcheance {
+    MODIFICATION_SANS_FRAIS
+    ABANDON_AVEC_FRAIS
+    FIN_TRIMESTRE
+  }
+}
+package "Cache des sources" {
+  class ReponseEnCache <<copie datée BD>> {
+    - cle : String
+    - source : String
+    - contenuJson : String
+    - recupereeLe : LocalDateTime
+    - miseAJourSource : LocalDate [0..1]
+    --
+    + age() : Duration
+  }
+}
+ProfilEtudiant "1" -- "0..*" PlanDeSession : planifie >
+ProfilEtudiant "0..*" --> "1" Programme : inscrit à >
+ProfilEtudiant "1" -- "0..*" Demande : envoie >
+ProfilEtudiant --> Provenance
+Programme "1" *-- "1..*" Segment
+Programme "1" *-- "0..*" Parcours
+Parcours "0..*" --> "1..*" Segment : regroupe >
+Segment "1" *-- "1..*" Bloc
+Bloc --> TypeBloc
+Bloc "0..*" o-- "0..*" Cours : liste >
+Cours "1" *-- "0..*" Section : offerte en >
+Cours "1" *-- "0..1" Exigence : préalables >
+Cours --> StatutAnalyse
+Cours --> Saison
+Section "1" *-- "0..*" Rencontre
+Exigence <|-- ExigenceCours
+Exigence <|-- ExigenceCombinee
+Exigence <|-- ExigenceCredits
+Exigence <|-- ExigenceManuelle
+ExigenceCombinee "1" *-- "1..*" Exigence : items >
+ExigenceCombinee <|-- ExigenceToutes
+ExigenceCombinee <|-- ExigenceUneParmi
+ExigenceCombinee <|-- ExigenceAuMoins
+OffreEncadree --> TypeOffre
+OffreEncadree --> EtatOffre
+ProfilEtudiant "1" -- "0..*" Repere : propose (auteur jamais affiché) >
+Repere --> StatutRepere
+PlanDeSession "1" *-- "0..*" ElementPlan : contient >
+PlanDeSession --> StatutPlan
+ElementPlan --> EtatElement
+ElementPlan "0..*" --> "0..1" Cours : {xor}
+ElementPlan "0..*" --> "0..1" Section : section choisie >
+ElementPlan "0..*" --> "0..1" OffreEncadree : {xor}
+Demande "0..*" --> "1" OffreEncadree : vise >
+Demande "0..1" -- "0..1" ElementPlan : réserve >
+Demande --> EtatDemande
+Demande "1" *-- "0..1" Entente : aboutit à >
+Entente --> EtatEntente
+Echeance --> TypeEcheance
+
+note bottom of EtatDemande
+  RETIREE et EXPIREE sont des états internes
+  de Boussole (délai dépassé, redirection),
+  pas des décisions officielles.
+end note
+note bottom of Repere
+  Visible seulement si PUBLIE et avant expireLe
+  (fin de la 2e session après sa soumission).
+end note
+
+
+legend right
+  <back:#DDEFD9> «persistant BD» </back> conservé d'une visite à l'autre, serveur (PostgreSQL)
+  <back:#FFF1C9> «copie datée BD» </back> copie datée d'une réponse Planifium, serveur (PostgreSQL)
+  <back:#E3ECF7> «service» </back> / <back:#F3E1F2> «adaptateur» </back> : non conservés (logique)
+  Sans couleur : objets de calcul ou de présentation, non conservés
+  Chaque cadre porte le nom du composant B1 qui héberge ses classes.
+endlegend
+
+@enduml
